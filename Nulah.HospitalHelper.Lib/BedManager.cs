@@ -18,13 +18,35 @@ namespace Nulah.HospitalHelper.Lib
             _bedRepository = bedRepository;
         }
 
-        public List<Bed> GetBeds()
+        public List<PublicBed> GetBeds()
         {
-            return _bedRepository.GetBeds();
+            var beds = _bedRepository.GetBeds();
+
+            return beds.Select(x => new PublicBed
+            {
+                BedNumber = x.Number,
+                BedStatus = x.BedStatus,
+                LastUpdateUTC = x.LastUpdateUTC
+            })
+            .ToList();
         }
-        public Bed? GetBedById(int bedId)
+
+        public PublicBed? GetBedById(int bedId)
         {
-            return _bedRepository.GetBedById(bedId);
+            var bed = _bedRepository.GetBedById(bedId);
+
+            if (bed == null)
+            {
+                return null;
+            }
+
+            return new PublicBed
+            {
+                Id = bed.Id,
+                BedNumber = bed.Number,
+                BedStatus = bed.BedStatus,
+                LastUpdateUTC = bed.LastUpdateUTC
+            };
         }
     }
 }

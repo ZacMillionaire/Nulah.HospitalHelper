@@ -1,5 +1,6 @@
 ﻿using Nulah.HospitalHelper.Core.Interfaces;
 using Nulah.HospitalHelper.Core.Models;
+using Nulah.HospitalHelper.Core.Models.Data;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -61,7 +62,7 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}], [{nameof(Bed.PatientId)}]" +
+                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}], [{nameof(Bed.LastUpdateUTC)}]" +
                     $"FROM [{nameof(Bed)}s]" +
                     $"WHERE [{nameof(Bed.Number)}] = $bedId";
 
@@ -95,9 +96,8 @@ namespace Nulah.HospitalHelper.Data
                 Id = Guid.Parse((string)reader[nameof(Bed.Id)]),
                 BedStatus = (BedStatus)Convert.ToInt32(reader[nameof(Bed.BedStatus)]),
                 Number = Convert.ToInt32(reader[nameof(Bed.Number)]),
-                PatientId = reader[nameof(Bed.PatientId)] == DBNull.Value
-                    ? null
-                    : Guid.Parse((string)reader[nameof(Bed.PatientId)]),
+                // DateTime is stored as a long from DateTime.UtcNow.Ticks
+                LastUpdateUTC = new DateTime((long)reader[nameof(Bed.LastUpdateUTC)]),
             };
         }
     }

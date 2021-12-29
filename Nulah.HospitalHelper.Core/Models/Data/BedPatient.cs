@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nulah.HospitalHelper.Core.Models
+namespace Nulah.HospitalHelper.Core.Models.Data
 {
-    public class PatientHealthDetail
+    public class BedPatient
     {
-        public Guid Id { get; set; }
+        public Guid BedId { get; set; }
         public Guid PatientId { get; set; }
-        public string PresentingIssue { get; set; }
     }
 }

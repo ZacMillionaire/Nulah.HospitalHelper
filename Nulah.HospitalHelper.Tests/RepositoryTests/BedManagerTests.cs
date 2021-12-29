@@ -45,7 +45,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var beds = _bedManager.GetBedById(1);
 
             Assert.IsTrue(beds != null);
-            Assert.IsTrue(beds.Number == 1);
+            Assert.IsTrue(beds.BedNumber == 1);
             Assert.IsTrue(beds.Id == new Guid(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
         }
 

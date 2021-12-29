@@ -6,18 +6,12 @@ using System.Threading.Tasks;
 
 namespace Nulah.HospitalHelper.Core.Models
 {
-    public class Bed
+    public class PublicBed
     {
         public Guid Id { get; set; }
+        public int BedNumber { get; set; }
         public BedStatus BedStatus { get; set; }
-        public int Number { get; set; }
-
-        public Guid? PatientId { get; set; }
-    }
-
-    public enum BedStatus
-    {
-        Free,
-        InUse
+        public PublicPatient? Patient { get; set; }
+        public DateTime LastUpdateUTC { get; set; }
     }
 }

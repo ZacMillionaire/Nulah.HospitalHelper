@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Nulah.HospitalHelper.Core.Models
 {
-    public class Employee
+    public class PublicPatientComment
     {
         public Guid Id { get; set; }
-        public string DisplayFirstName { get; set; }
-        public string DisplayLastName { get; set; }
-        public string FullName { get; set; }
+        public DateTime DateTimeUTC { get; set; }
+        public PublicEmployee? Nurse { get; set; }
+        public string Comment { get; set; } = string.Empty;
     }
 }

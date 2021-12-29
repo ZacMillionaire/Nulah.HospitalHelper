@@ -1,4 +1,5 @@
 ﻿using Nulah.HospitalHelper.Core.Models;
+using Nulah.HospitalHelper.Core.Models.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
