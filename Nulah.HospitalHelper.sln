@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nulah.HospitalHelper.Api", "Nulah.HospitalHelper.Api\Nulah.HospitalHelper.Api.csproj", "{2E3D6FA5-929F-4297-AD5F-EC8ACAD25CED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nulah.HospitalHelper.Lib", "Nulah.HospitalHelper.Lib\Nulah.HospitalHelper.Lib.csproj", "{1376EF5A-E585-4CA9-B66D-27506129E0B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nulah.HospitalHelper.Data", "Nulah.HospitalHelper.Data\Nulah.HospitalHelper.Data.csproj", "{63D7068E-4BF7-4246-99E3-DE33C5A8F153}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nulah.HospitalHelper.Tests", "Nulah.HospitalHelper.Tests\Nulah.HospitalHelper.Tests.csproj", "{EA8ED18F-EC3A-4614-BE79-CE6728E3D70B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nulah.HospitalHelper.Core", "Nulah.HospitalHelper.Core\Nulah.HospitalHelper.Core.csproj", "{E08EBCA8-8329-47B4-9C46-E434396A40D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D55196E6-B028-4D43-8F0B-78C9F8095AD9}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nulah.HospitalHelper.Frontend", "Nulah.HospitalHelper.Frontend\Nulah.HospitalHelper.Frontend.csproj", "{60A46AB9-9F1A-4863-90C1-969878D2F4F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E3D6FA5-929F-4297-AD5F-EC8ACAD25CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3D6FA5-929F-4297-AD5F-EC8ACAD25CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3D6FA5-929F-4297-AD5F-EC8ACAD25CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3D6FA5-929F-4297-AD5F-EC8ACAD25CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1376EF5A-E585-4CA9-B66D-27506129E0B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1376EF5A-E585-4CA9-B66D-27506129E0B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1376EF5A-E585-4CA9-B66D-27506129E0B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1376EF5A-E585-4CA9-B66D-27506129E0B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63D7068E-4BF7-4246-99E3-DE33C5A8F153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63D7068E-4BF7-4246-99E3-DE33C5A8F153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63D7068E-4BF7-4246-99E3-DE33C5A8F153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63D7068E-4BF7-4246-99E3-DE33C5A8F153}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA8ED18F-EC3A-4614-BE79-CE6728E3D70B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA8ED18F-EC3A-4614-BE79-CE6728E3D70B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA8ED18F-EC3A-4614-BE79-CE6728E3D70B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA8ED18F-EC3A-4614-BE79-CE6728E3D70B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E08EBCA8-8329-47B4-9C46-E434396A40D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E08EBCA8-8329-47B4-9C46-E434396A40D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E08EBCA8-8329-47B4-9C46-E434396A40D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E08EBCA8-8329-47B4-9C46-E434396A40D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60A46AB9-9F1A-4863-90C1-969878D2F4F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60A46AB9-9F1A-4863-90C1-969878D2F4F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60A46AB9-9F1A-4863-90C1-969878D2F4F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60A46AB9-9F1A-4863-90C1-969878D2F4F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {237C92C5-F181-476E-8D18-B35EF7D56A06}
+	EndGlobalSection
+EndGlobal
