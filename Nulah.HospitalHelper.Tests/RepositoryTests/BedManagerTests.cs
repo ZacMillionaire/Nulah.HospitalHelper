@@ -10,30 +10,16 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
     [TestClass]
     public class BedManagerTests
     {
-        private static BedManager _bedManager;
-
-
-        // Singleton for tests
-        static BedManagerTests()
+        [TestInitialize]
+        public void InitializeTests()
         {
-            var testDatabaseLocation = "./hospitalHelperTest.db";
-
-            if (File.Exists(testDatabaseLocation))
-            {
-                File.Delete(testDatabaseLocation);
-            }
-
-            var dataRepository = new SqliteDataRepository($"Data Source={testDatabaseLocation};");
-            dataRepository.SeedDatabase();
-            var bedRepository = new BedRepository(dataRepository);
-
-            _bedManager = new BedManager(bedRepository);
+            TestHelpers.ReseedDatabase();
         }
-
         [TestMethod]
         public void GetAllBeds_ShouldReturn_AllBeds()
         {
-            var beds = _bedManager.GetBeds();
+            var bedManager = TestHelpers.GetBedManager();
+            var beds = bedManager.GetBeds();
 
             Assert.IsTrue(beds.Count > 0);
             Assert.IsTrue(beds.Count == 3);
@@ -42,7 +28,8 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         [TestMethod]
         public void GetBedByNumber_1_ShouldReturn_Bed1()
         {
-            var beds = _bedManager.GetBedById(1);
+            var bedManager = TestHelpers.GetBedManager();
+            var beds = bedManager.GetBedById(1);
 
             Assert.IsTrue(beds != null);
             Assert.IsTrue(beds.BedNumber == 1);
@@ -52,9 +39,10 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         [TestMethod]
         public void GetBedByInvalidNumber_10_ShouldReturn_null()
         {
-            var beds = _bedManager.GetBedById(10);
+            var bedManager = TestHelpers.GetBedManager();
+            var bed = bedManager.GetBedById(10);
 
-            Assert.IsTrue(beds == null);
+            Assert.IsTrue(bed == null);
         }
     }
 }
