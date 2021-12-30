@@ -31,13 +31,13 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <returns></returns>
         public PatientDetails GetPatientDetails(int patientURN);
         /// <summary>
-        /// Adds the comment to a patient from an employee
+        /// Adds the comment to a patient from an employee.
         /// </summary>
         /// <param name="comment"></param>
         /// <param name="patientURN"></param>
         /// <param name="commentingEmployeeId"></param>
         /// <returns></returns>
-        public PatientComment AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId);
+        public PatientComment? AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId);
         /// <summary>
         /// Removes a comment by Id from a patient by URN
         /// </summary>
@@ -45,5 +45,11 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="patientURN"></param>
         /// <returns></returns>
         public bool RemoveCommentFromPatient(int commentId, int patientURN);
+        /// <summary>
+        /// Returns a comment by it's <paramref name="commentId"/> or null on none found
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        PatientComment? GetPatientComment(int commentId);
     }
 }

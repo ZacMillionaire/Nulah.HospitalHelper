@@ -75,6 +75,8 @@ namespace Nulah.HospitalHelper.Lib
                 return null;
             }
 
+
+
             return new PublicPatientDetails
             {
                 Id = patient.Id,
@@ -87,15 +89,21 @@ namespace Nulah.HospitalHelper.Lib
 
         /// <summary>
         /// Adds a <paramref name="comment"/> to a patient by <paramref name="patientURN"/>, and associates it to an employee by <paramref name="employeeID"/>
+        /// <para>
+        /// This method assumes <paramref name="employeeID"/> has already been validated to exist.
+        /// </para>
         /// </summary>
         /// <param name="comment"></param>
         /// <param name="patientURN"></param>
         /// <param name="employeeID"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public object AddCommentToPatient(string comment, int patientURN, int employeeID)
+        public PatientComment? AddCommentToPatient(string comment, int patientURN, int employeeID)
         {
-            throw new NotImplementedException();
+            // We assume the employeeId has already been validated via business logic higher up the call chain
+            var createdComment = _patientRepository.AddCommentToPatient(comment, patientURN, employeeID);
+
+            return createdComment;
         }
 
         /// <summary>

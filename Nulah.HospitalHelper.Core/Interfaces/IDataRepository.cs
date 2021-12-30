@@ -13,6 +13,6 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         [DebuggerStepThrough]
         public DbConnection GetConnection();
         [DebuggerStepThrough]
-        DbCommand CreateCommand(string commandText, DbConnection connection, Dictionary<string, object>? parameters = null);
+        DbCommand CreateCommand(string commandText, DbConnection connection, Dictionary<string, object>? parameters = null, DbTransaction? dbTransaction = null);
     }
 }

@@ -52,16 +52,22 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         public void AddCommentToPatientURN_83524_ShouldReturn_PatientFullDetails_With1Comment()
         {
             var patientManager = TestHelpers.GetPatientManager();
-            var patients = patientManager.AddCommentToPatient("Admitted", 83524, 1);
+            var addedComment = patientManager.AddCommentToPatient("Admitted", 83524, 1);
 
-            Assert.IsTrue(false);
+            Assert.IsTrue(addedComment!.Comment == "Admitted");
+            Assert.IsTrue(addedComment.Id == 7);
         }
 
         [TestMethod]
         public void AddCommentsToPatientURN_83524_ShouldReturn_PatientFullDetails_WithMutlipleComments()
         {
             var patientManager = TestHelpers.GetPatientManager();
-            var patients = patientManager.GetPatientDetails(83524);
+            patientManager.AddCommentToPatient("Admitted", 83524, 1);
+            patientManager.AddCommentToPatient("Sent for X-Ray", 83524, 1);
+            patientManager.AddCommentToPatient("Waitng for X-Ray results", 83524, 1);
+
+
+            var patientFullDetails = patientManager.GetPatientDetails(83524);
 
             Assert.IsTrue(false);
         }

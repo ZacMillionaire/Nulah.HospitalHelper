@@ -137,15 +137,147 @@ namespace Nulah.HospitalHelper.Data
             */
         }
 
-
-        public PatientComment AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId)
+        /// <summary>
+        /// Adds the comment to a patient from an employee.
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <param name="patientURN"></param>
+        /// <param name="commentingEmployeeId"></param>
+        /// <returns></returns>
+        public PatientComment? AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId)
         {
-            throw new NotImplementedException();
+            var patient = GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                throw new Exception($"Patient does not exist by URN:");
+            }
+
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    var createCommentQuery = $@"INSERT INTO [{nameof(PatientComment)}s] (
+                            [{nameof(PatientComment.Comment)}],
+                            [{nameof(PatientComment.DateTimeUTC)}]
+                        ) VALUES (
+                            $comment,
+                            {DateTime.UtcNow.Ticks}
+                        );";
+
+                    using (var res = _repository.CreateCommand(createCommentQuery, conn, new Dictionary<string, object> { { "comment", comment } }, transaction))
+                    {
+                        res.ExecuteNonQuery();
+                    }
+
+                    var commentInsertId = GetLastInsertId(conn, transaction);
+
+                    if (commentInsertId == null)
+                    {
+                        transaction.Rollback();
+                        throw new Exception("Comment insert failed");
+                    }
+
+                    var linkCommentQuery = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
+                            [{nameof(CommentPatientEmployee.CommentId)}],
+                            [{nameof(CommentPatientEmployee.PatientId)}],
+                            [{nameof(CommentPatientEmployee.EmployeeId)}]
+                        ) VALUES (
+                            $commentId, 
+                            $patientURN, 
+                            $employeeId
+                        )";
+
+                    var linkCommentQueryParams = new Dictionary<string, object>
+                    {
+                        { "commentId", commentInsertId },
+                        { "patientURN", patientURN },
+                        { "employeeId", commentingEmployeeId },
+                    };
+
+                    using (var res = _repository.CreateCommand(linkCommentQuery, conn, linkCommentQueryParams, transaction))
+                    {
+                        var insert = res.ExecuteNonQuery();
+
+                        if (insert == 1)
+                        {
+                            transaction.Commit();
+
+                            // Probably shouldn't call another connection in a connection but the transaction will have been commited by this point
+                            return GetPatientComment((int)commentInsertId);
+                        }
+                    }
+
+                    // Rollback the transaction if we fail to find the inserted comment to return, or if some other unknown branch
+                    // caused a silent error
+                    transaction.Rollback();
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns a comment by it's <paramref name="commentId"/> or null on none found
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public PatientComment? GetPatientComment(int commentId)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+
+                    var getCommentQuery = $@"SELECT 
+                            [{nameof(PatientComment.Id)}],
+                            [{nameof(PatientComment.Comment)}],
+                            [{nameof(PatientComment.DateTimeUTC)}]
+                        FROM
+                            [{nameof(PatientComment)}s]
+                        WHERE [{nameof(PatientComment.Id)}] = $commentId";
+
+                    using (var res = _repository.CreateCommand(getCommentQuery, conn, new Dictionary<string, object> { { "commentId", commentId } }, transaction))
+                    {
+                        using (var reader = res.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    return ReaderRowToComment(reader);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns the rowid of the last INSERT command for the given <paramref name="dbConnection"/>
+        /// </summary>
+        /// <param name="dbConnection"></param>
+        /// <returns></returns>
+        private int? GetLastInsertId(DbConnection dbConnection, DbTransaction? dbTransaction = null)
+        {
+            using (var res = _repository.CreateCommand("SELECT last_insert_rowid();", dbConnection, dbTransaction: dbTransaction))
+            {
+                var lastRowId = res.ExecuteScalar() as long?;
+                return lastRowId == null
+                    ? null
+                    : Convert.ToInt32(lastRowId);
+            }
         }
 
         private Patient ReaderRowToPatient(DbDataReader reader)
@@ -159,6 +291,16 @@ namespace Nulah.HospitalHelper.Data
                 FullName = (string)reader[nameof(Patient.FullName)],
                 // DateTime is stored as a long from DateTime.UtcNow.Ticks
                 DateOfBirthUTC = new DateTime((long)reader[nameof(Patient.DateOfBirthUTC)]),
+            };
+        }
+
+        private PatientComment ReaderRowToComment(DbDataReader reader)
+        {
+            return new PatientComment
+            {
+                Id = Convert.ToInt32(reader[nameof(PatientComment.Id)]),
+                Comment = (string)reader[nameof(PatientComment.Comment)],
+                DateTimeUTC = new DateTime((long)reader[nameof(PatientComment.DateTimeUTC)])
             };
         }
     }

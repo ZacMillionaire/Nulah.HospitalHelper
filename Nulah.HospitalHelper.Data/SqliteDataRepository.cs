@@ -28,9 +28,9 @@ namespace Nulah.HospitalHelper.Data
         }
 
         [DebuggerStepThrough]
-        public DbCommand CreateCommand(string commandText, DbConnection connection, Dictionary<string, object>? parameters = null)
+        public DbCommand CreateCommand(string commandText, DbConnection connection, Dictionary<string, object>? parameters = null, DbTransaction? sqliteTransaction = null)
         {
-            var command = new SqliteCommand(commandText, connection as SqliteConnection);
+            var command = new SqliteCommand(commandText, (SqliteConnection)connection, (SqliteTransaction?)sqliteTransaction);
 
             if (parameters != null)
             {
