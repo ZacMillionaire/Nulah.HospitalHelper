@@ -23,7 +23,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var beds = bedManager.GetBeds();
 
             Assert.IsTrue(beds.Count > 0);
-            Assert.IsTrue(beds.Count == 3);
+            Assert.IsTrue(beds.Count == 8);
         }
 
         [TestMethod]

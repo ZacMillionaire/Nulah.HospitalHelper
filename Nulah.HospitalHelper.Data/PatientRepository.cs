@@ -38,7 +38,7 @@ namespace Nulah.HospitalHelper.Data
                         [{nameof(Patient.DisplayFirstName)}],
                         [{nameof(Patient.DisplayLastName)}],
                         [{nameof(Patient.FullName)}],
-                        [{nameof(Patient.DateOfBirth)}]
+                        [{nameof(Patient.DateOfBirthUTC)}]
                     FROM 
                         [{nameof(Patient)}s]
                     WHERE 
@@ -102,50 +102,51 @@ namespace Nulah.HospitalHelper.Data
         public PatientDetails GetPatientDetails(int patientURN)
         {
             throw new NotImplementedException();
-            //using (var conn = _repository.GetConnection())
-            //{
-            //    conn.Open();
+            /*
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
 
-            //    var query = $@"SELECT [{nameof(Patient.URN)}],
-            //            [{nameof(Patient.Id)}],
-            //            [{nameof(Patient.DisplayFirstName)}],
-            //            [{nameof(Patient.DisplayLastName)}],
-            //            [{nameof(Patient.FullName)}],
-            //            [{nameof(Patient.DateOfBirth)}]
-            //        FROM 
-            //            [{nameof(Patient)}s]
-            //        WHERE 
-            //            [{nameof(Patient.URN)}] = $patientId";
+                var query = $@"SELECT [{nameof(Patient.URN)}],
+                        [{nameof(Patient.Id)}],
+                        [{nameof(Patient.DisplayFirstName)}],
+                        [{nameof(Patient.DisplayLastName)}],
+                        [{nameof(Patient.FullName)}],
+                        [{nameof(Patient.DateOfBirth)}]
+                    FROM 
+                        [{nameof(Patient)}s]
+                    WHERE 
+                        [{nameof(Patient.URN)}] = $patientId";
 
-            //    using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientId", patientURN } }))
-            //    {
-            //        using (var reader = res.ExecuteReader())
-            //        {
-            //            if (reader.HasRows)
-            //            {
-            //                while (reader.Read())
-            //                {
-            //                    return ReaderRowToPatient(reader);
-            //                }
-            //            }
+                using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientId", patientURN } }))
+                {
+                    using (var reader = res.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                return ReaderRowToPatient(reader);
+                            }
+                        }
 
-            //            return null;
-            //        }
-            //    }
-            //}
+                        return null;
+                    }
+                }
+            }
+            */
         }
 
 
-        public Guid AddCommentToPatient(int patientId)
+        public PatientComment AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId)
         {
             throw new NotImplementedException();
         }
 
-        public bool RemoveCommentFromPatient(Guid commentId, int patientId)
+        public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();
         }
-
 
         private Patient ReaderRowToPatient(DbDataReader reader)
         {
@@ -157,7 +158,7 @@ namespace Nulah.HospitalHelper.Data
                 DisplayLastName = (string)reader[nameof(Patient.DisplayLastName)],
                 FullName = (string)reader[nameof(Patient.FullName)],
                 // DateTime is stored as a long from DateTime.UtcNow.Ticks
-                DateOfBirth = new DateTime((long)reader[nameof(Patient.DateOfBirth)]),
+                DateOfBirthUTC = new DateTime((long)reader[nameof(Patient.DateOfBirthUTC)]),
             };
         }
     }

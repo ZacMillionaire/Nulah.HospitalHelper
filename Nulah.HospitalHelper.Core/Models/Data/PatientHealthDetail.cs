@@ -8,8 +8,8 @@ namespace Nulah.HospitalHelper.Core.Models.Data
 {
     public class PatientHealthDetail
     {
-        public Guid Id { get; set; }
-        public Guid PatientId { get; set; }
-        public string PresentingIssue { get; set; }
+        public int Id { get; set; }
+        public int PatientId { get; set; }
+        public string PresentingIssue { get; set; } = String.Empty;
     }
 }

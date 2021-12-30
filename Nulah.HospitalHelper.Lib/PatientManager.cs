@@ -30,7 +30,7 @@ namespace Nulah.HospitalHelper.Lib
             return patients.Select(x => new PublicPatient
             {
                 Id = x.Id,
-                DateOfBirth = x.DateOfBirth,
+                DateOfBirth = x.DateOfBirthUTC,
                 DisplayName = $"{x.DisplayFirstName} {x.DisplayLastName}",
                 URN = x.URN
             })
@@ -38,13 +38,13 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
-        /// Returns short patient information by their URN
+        /// Returns short patient information by their <paramref name="patientURN"/>
         /// </summary>
-        /// <param name="URN"></param>
+        /// <param name="patientURN"></param>
         /// <returns></returns>
-        public PublicPatient? GetPatient(int URN)
+        public PublicPatient? GetPatient(int patientURN)
         {
-            var patient = _patientRepository.GetPatient(URN);
+            var patient = _patientRepository.GetPatient(patientURN);
 
             if (patient == null)
             {
@@ -54,7 +54,7 @@ namespace Nulah.HospitalHelper.Lib
             return new PublicPatient
             {
                 Id = patient.Id,
-                DateOfBirth = patient.DateOfBirth,
+                DateOfBirth = patient.DateOfBirthUTC,
                 DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN
@@ -62,13 +62,13 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
-        /// Returns the full details of a patient, including the bed they may be currently in if admitted, and any comments added
+        /// Returns the full details of a patient by their <paramref name="patientURN"/>, including the bed they may be currently in if admitted, and any comments added
         /// </summary>
-        /// <param name="URN"></param>
+        /// <param name="patientURN"></param>
         /// <returns></returns>
-        public PublicPatientDetails? GetPatientDetails(int URN)
+        public PublicPatientDetails? GetPatientDetails(int patientURN)
         {
-            var patient = _patientRepository.GetPatientDetails(URN);
+            var patient = _patientRepository.GetPatientDetails(patientURN);
 
             if (patient == null)
             {
@@ -78,12 +78,26 @@ namespace Nulah.HospitalHelper.Lib
             return new PublicPatientDetails
             {
                 Id = patient.Id,
-                DateOfBirth = patient.DateOfBirth,
+                DateOfBirth = patient.DateOfBirthUTC,
                 DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN
             };
         }
+
+        /// <summary>
+        /// Adds a <paramref name="comment"/> to a patient by <paramref name="patientURN"/>, and associates it to an employee by <paramref name="employeeID"/>
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <param name="patientURN"></param>
+        /// <param name="employeeID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public object AddCommentToPatient(string comment, int patientURN, int employeeID)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Returns a patients display name given their first and last display names.
         /// <para>

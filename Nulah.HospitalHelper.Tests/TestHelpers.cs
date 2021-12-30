@@ -15,6 +15,8 @@ namespace Nulah.HospitalHelper.Tests
     internal static class TestHelpers
     {
         private static SqliteDataRepository _dataRepository;
+        // To align to test data assume the dates were created in brisbane/AEST
+        private static TimeZoneInfo _tz = TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time");
 
         /// <summary>
         /// Ensures that the test database exists, and that 
@@ -37,19 +39,29 @@ namespace Nulah.HospitalHelper.Tests
 
                 PopulateBeds(db);
                 PopulatePatients(db);
+
+                PopulatePatientsToBeds(db);
+
+                PopulateEmployees(db);
+                PopulateComments(db);
             }
         }
 
         private static void PopulateBeds(SqliteConnection db)
         {
-            var createBedsQueryText = $@"INSERT INTO [{nameof(Bed)}s] (" +
-                $"[{nameof(Bed.Id)}]," +
-                $"[{nameof(Bed.BedStatus)}]," +
-                $"[{nameof(Bed.LastUpdateUTC)}]" +
-                $") VALUES " +
-                $"('{Guid.NewGuid()}',{(int)BedStatus.Free},{DateTime.UtcNow.Ticks})," +
-                $"('{Guid.NewGuid()}',{(int)BedStatus.Free},{DateTime.UtcNow.Ticks})," +
-                $"('{Guid.NewGuid()}',{(int)BedStatus.Free},{DateTime.UtcNow.Ticks});";
+            var createBedsQueryText = $@"INSERT INTO [{nameof(Bed)}s] (
+                    [{nameof(Bed.Id)}],
+                    [{nameof(Bed.BedStatus)}],
+                    [{nameof(Bed.LastUpdateUTC)}]
+                ) VALUES 
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 22), _tz).ToUniversalTime().Ticks}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL);";
 
             new SqliteCommand(createBedsQueryText, db)
                 .ExecuteNonQuery();
@@ -57,18 +69,84 @@ namespace Nulah.HospitalHelper.Tests
 
         public static void PopulatePatients(SqliteConnection db)
         {
+            // DoB is assumed to be UTC
             var createPatientsQueryText = $@"INSERT INTO [{nameof(Patient)}s] (
+                    [{nameof(Patient.URN)}],
                     [{nameof(Patient.Id)}],
                     [{nameof(Patient.DisplayFirstName)}],
                     [{nameof(Patient.DisplayLastName)}],
-                    [{nameof(Patient.FullName)}] ,
-                    [{nameof(Patient.DateOfBirth)}] 
+                    [{nameof(Patient.FullName)}],
+                    [{nameof(Patient.DateOfBirthUTC)}] 
                 ) VALUES 
-                    ('{Guid.NewGuid()}','John','Doe','John Doe',{new DateTime(1980, 1, 1).Ticks}),
-                    ('{Guid.NewGuid()}','Lorna','Smith','Lorna Smith',{new DateTime(1995, 3, 15).Ticks}),
-                    ('{Guid.NewGuid()}','Diana','May','Diana May',{new DateTime(1995, 3, 15).Ticks})";
+                    (83524,'{Guid.NewGuid()}','John','Doe','John Doe',{CreateDateTimeForTimezone(new DateTime(1980, 1, 1), TimeZoneInfo.Utc).Ticks}),
+                    (2,'{Guid.NewGuid()}','Lorna','Smith','Lorna Smith',{CreateDateTimeForTimezone(new DateTime(1995, 3, 15), TimeZoneInfo.Utc).Ticks}),
+                    (3000,'{Guid.NewGuid()}','Diana','May','Diana May',{CreateDateTimeForTimezone(new DateTime(1972, 11, 23), TimeZoneInfo.Utc).Ticks})";
 
             new SqliteCommand(createPatientsQueryText, db)
+                .ExecuteNonQuery();
+        }
+
+        private static void PopulatePatientsToBeds(SqliteConnection db)
+        {
+            var linkPatientsToBedsQueryText = $@"INSERT INTO [{nameof(BedPatient)}] (
+                [{nameof(BedPatient.BedId)}],
+                [{nameof(BedPatient.PatientId)}]
+            ) VALUES
+                (1,83524),
+                (5,2),
+                (6,3000);";
+
+            new SqliteCommand(linkPatientsToBedsQueryText, db)
+                .ExecuteNonQuery();
+        }
+
+        private static void PopulateEmployees(SqliteConnection db)
+        {
+            var employeesQueryText = $@"INSERT INTO [{nameof(Employee)}s] (
+                    [{nameof(Employee.Id)}],
+                    [{nameof(Employee.DisplayFirstName)}],
+                    [{nameof(Employee.DisplayLastName)}],
+                    [{nameof(Employee.FullName)}]
+                ) VALUES
+                    ('{Guid.NewGuid()}','Kelly', 'A.', 'Kelly Anderson'),
+                    ('{Guid.NewGuid()}','Mary', 'P.', 'Mary Presco')";
+
+            new SqliteCommand(employeesQueryText, db)
+                .ExecuteNonQuery();
+        }
+
+        private static void PopulateComments(SqliteConnection db)
+        {
+            var commentDateTime = CreateDateTimeForTimezone(new DateTime(2020, 2, 2), _tz).ToUniversalTime().Ticks;
+
+            // Create the initial comments
+            var commentsQueryText = $@"INSERT INTO [{nameof(PatientComment)}s] (
+                [{nameof(PatientComment.Comment)}],
+                [{nameof(PatientComment.DateTimeUTC)}]
+            ) VALUES
+                ('Admitted',{commentDateTime}),
+                ('Temp checked',{commentDateTime}),
+                ('Blood pressure checked',{commentDateTime}),
+                ('Discharged',{commentDateTime}),
+                ('X-Ray waiting results',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
+                ('Medication supplied',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks});";
+
+            new SqliteCommand(commentsQueryText, db)
+                .ExecuteNonQuery();
+
+            var commentPatientEmployeeQueryText = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
+                    [{nameof(CommentPatientEmployee.CommentId)}],
+                    [{nameof(CommentPatientEmployee.PatientId)}],
+                    [{nameof(CommentPatientEmployee.EmployeeId)}]
+                ) VALUES 
+                    (1,83524,1),
+                    (2,83524,2),
+                    (3,83524,2),
+                    (4,83524,1),
+                    (5,2,2),
+                    (6,3000,1)";
+
+            new SqliteCommand(commentPatientEmployeeQueryText, db)
                 .ExecuteNonQuery();
         }
 
@@ -85,21 +163,65 @@ namespace Nulah.HospitalHelper.Tests
                     [{nameof(Bed.Number)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                     [{nameof(Bed.Id)}] TEXT,
                     [{nameof(Bed.BedStatus)}] INTEGER,
-                    [{nameof(Bed.LastUpdateUTC)}] INTEGER)";
+                    [{nameof(Bed.LastUpdateUTC)}] INTEGER
+                )";
 
                 var patientTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Patient)}s] (
                     [{nameof(Patient.URN)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                     [{nameof(Patient.Id)}] TEXT,
-                    [{nameof(Patient.DisplayFirstName)}] TEXT,
+                    [{nameof(Patient.DisplayFirstName)}] TEXT NOT NULL,
                     [{nameof(Patient.DisplayLastName)}] TEXT,
                     [{nameof(Patient.FullName)}] TEXT,
-                    [{nameof(Patient.DateOfBirth)}] INTEGER)";
+                    [{nameof(Patient.DateOfBirthUTC)}] INTEGER
+                )";
+
+                var bedPatientCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(BedPatient)}] (
+                    [{nameof(BedPatient.BedId)}] INTEGER NOT NULL,
+                    [{nameof(BedPatient.PatientId)}] INTEGER NOT NULL,
+                    PRIMARY KEY (
+                        {nameof(BedPatient.BedId)},
+                        {nameof(BedPatient.PatientId)}
+                    )
+                )";
+
+                var commentTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientComment)}s] (
+                    [{nameof(PatientComment.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
+                    [{nameof(PatientComment.Comment)}] TEXT,
+                    [{nameof(PatientComment.DateTimeUTC)}] INTEGER
+                )";
+
+                var commentPatientEmployeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(CommentPatientEmployee)}] (
+                    [{nameof(CommentPatientEmployee.CommentId)}] INTEGER NOT NULL,
+                    [{nameof(CommentPatientEmployee.PatientId)}] INTEGER NOT NULL,
+                    [{nameof(CommentPatientEmployee.EmployeeId)}] INTEGER NOT NULL,
+                    PRIMARY KEY (
+                        {nameof(CommentPatientEmployee.CommentId)},
+                        {nameof(CommentPatientEmployee.PatientId)},
+                        {nameof(CommentPatientEmployee.EmployeeId)}
+                    )
+                )";
+
+                var employeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Employee)}s] (
+                    [{nameof(Employee.EmployeeId)}] INTEGER PRIMARY KEY AUTOINCREMENT,
+                    [{nameof(Employee.Id)}] TEXT,
+                    [{nameof(Employee.DisplayFirstName)}] TEXT NOT NULL,
+                    [{nameof(Employee.DisplayLastName)}] TEXT,
+                    [{nameof(Employee.FullName)}] TEXT
+                )";
 
                 var createBedTable = new SqliteCommand(bedTableCommand, db);
                 var createPatientTable = new SqliteCommand(patientTableCommand, db);
+                var createBedPatientTable = new SqliteCommand(bedPatientCommand, db);
+                var createCommentsTable = new SqliteCommand(commentTableCommand, db);
+                var createCommentPatientEmployeeTable = new SqliteCommand(commentPatientEmployeeTableCommand, db);
+                var createEmployeeTable = new SqliteCommand(employeeTableCommand, db);
 
                 createBedTable.ExecuteReader();
                 createPatientTable.ExecuteReader();
+                createBedPatientTable.ExecuteReader();
+                createCommentsTable.ExecuteReader();
+                createCommentPatientEmployeeTable.ExecuteReader();
+                createEmployeeTable.ExecuteReader();
 
                 db.Close();
             }
@@ -117,8 +239,10 @@ namespace Nulah.HospitalHelper.Tests
             {
                 db.Open();
 
-                var dropAllTablesCommand = $@"DROP TABLE IF EXISTS [{nameof(Bed)}s];
-                    DROP TABLE IF EXISTS [{nameof(Patient)}s]";
+                var dropAllTablesCommand = $@"PRAGMA writable_schema = 1;
+                delete from sqlite_master where type in ('table', 'index', 'trigger');
+                PRAGMA writable_schema = 0;
+                VACUUM;";
 
                 var dropAllTables = new SqliteCommand(dropAllTablesCommand, db);
 
@@ -136,6 +260,18 @@ namespace Nulah.HospitalHelper.Tests
         {
             var patientRepository = new PatientRepository(_dataRepository);
             return new PatientManager(patientRepository);
+        }
+
+        /// <summary>
+        /// Returns a given UTC date time aligned to the given timezone (Kind will be UTC but the offset will correspond to the given timezone)
+        /// </summary>
+        /// <param name="utcDateTime"></param>
+        /// <param name="timeZone"></param>
+        /// <returns></returns>
+        private static DateTime CreateDateTimeForTimezone(DateTime utcDateTime, TimeZoneInfo timeZone)
+        {
+            var dateTimeUnspec = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Unspecified);
+            return TimeZoneInfo.ConvertTimeToUtc(dateTimeUnspec, timeZone);
         }
     }
 }

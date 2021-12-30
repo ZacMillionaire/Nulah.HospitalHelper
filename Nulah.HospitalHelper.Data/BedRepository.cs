@@ -97,7 +97,9 @@ namespace Nulah.HospitalHelper.Data
                 BedStatus = (BedStatus)Convert.ToInt32(reader[nameof(Bed.BedStatus)]),
                 Number = Convert.ToInt32(reader[nameof(Bed.Number)]),
                 // DateTime is stored as a long from DateTime.UtcNow.Ticks
-                LastUpdateUTC = new DateTime((long)reader[nameof(Bed.LastUpdateUTC)]),
+                LastUpdateUTC = reader[nameof(Bed.LastUpdateUTC)] != DBNull.Value
+                    ? new DateTime((long)reader[nameof(Bed.LastUpdateUTC)])
+                    : null,
             };
         }
     }

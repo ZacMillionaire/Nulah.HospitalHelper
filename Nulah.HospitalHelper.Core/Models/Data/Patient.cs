@@ -16,6 +16,12 @@ namespace Nulah.HospitalHelper.Core.Models.Data
         /// </summary>
         public string? DisplayLastName { get; set; } = null;
         public string FullName { get; set; } = string.Empty;
-        public DateTime DateOfBirth { get; set; }
+        /// <summary>
+        /// DoB is stored as UTC and should be converted to the local timezone when displaying.
+        /// <para>
+        /// All calculations should be done on <see cref="DateTime.ToUniversalTime()"/>
+        /// </para>
+        /// </summary>
+        public DateTime DateOfBirthUTC { get; set; }
     }
 }
