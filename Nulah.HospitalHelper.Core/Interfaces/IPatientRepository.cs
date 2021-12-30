@@ -72,5 +72,17 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="patientURN"></param>
         /// <returns></returns>
         PatientHealthDetail? GetPatientHealthDetails(int patientURN);
+        /// <summary>
+        /// Creates a new patient with the given details.
+        /// <para>
+        /// Returns null if the patient was unable to be created successfully.
+        /// </para>
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        Patient? CreatePatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC);
     }
 }
