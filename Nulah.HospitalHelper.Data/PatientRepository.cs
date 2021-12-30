@@ -19,14 +19,7 @@ namespace Nulah.HospitalHelper.Data
             _repository = dataRepository;
         }
 
-        /// <summary>
-        /// Returns a patient by their URN
-        /// <para>
-        /// Returns null if the patient does not exist
-        /// </para>
-        /// </summary>
-        /// <param name="patientURN"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public Patient? GetPatient(int patientURN)
         {
             using (var conn = _repository.GetConnection())
@@ -62,10 +55,7 @@ namespace Nulah.HospitalHelper.Data
             }
         }
 
-        /// <summary>
-        /// Returns all top level patient details for all patients
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public List<Patient> GetPatients()
         {
             var patients = new List<Patient>();
@@ -93,16 +83,9 @@ namespace Nulah.HospitalHelper.Data
             return patients;
         }
 
-        /// <summary>
-        /// Returns the full details for a patient by URN, including their bed details if admitted, presenting issues, and any comments associated to them
-        /// </summary>
-        /// <param name="patientURN"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public PatientDetails GetPatientDetails(int patientURN)
+        /// <inheritdoc/>
+        public PatientDetails? GetPatientDetails(int patientURN)
         {
-            throw new NotImplementedException();
-            /*
             using (var conn = _repository.GetConnection())
             {
                 conn.Open();
@@ -112,7 +95,7 @@ namespace Nulah.HospitalHelper.Data
                         [{nameof(Patient.DisplayFirstName)}],
                         [{nameof(Patient.DisplayLastName)}],
                         [{nameof(Patient.FullName)}],
-                        [{nameof(Patient.DateOfBirth)}]
+                        [{nameof(Patient.DateOfBirthUTC)}]
                     FROM 
                         [{nameof(Patient)}s]
                     WHERE 
@@ -126,24 +109,32 @@ namespace Nulah.HospitalHelper.Data
                         {
                             while (reader.Read())
                             {
-                                return ReaderRowToPatient(reader);
+                                var patient = ReaderRowToPatient(reader);
+                                var comments = GetCommentsForPatient(patient.URN);
+
+                                var patientDetails = new PatientDetails
+                                {
+                                    URN = patient.URN,
+                                    DateOfBirthUTC = patient.DateOfBirthUTC,
+                                    DisplayFirstName = patient.DisplayFirstName,
+                                    DisplayLastName = patient.DisplayLastName,
+                                    FullName = patient.FullName,
+                                    Id = patient.Id,
+                                    Comments = comments,
+                                    HealthDetails = GetPatientHealthDetails(patient.URN)
+                                };
+
+                                return patientDetails;
                             }
                         }
-
-                        return null;
                     }
                 }
             }
-            */
+
+            return null;
         }
 
-        /// <summary>
-        /// Adds the comment to a patient from an employee.
-        /// </summary>
-        /// <param name="comment"></param>
-        /// <param name="patientURN"></param>
-        /// <param name="commentingEmployeeId"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public PatientComment? AddCommentToPatient(string comment, int patientURN, int commentingEmployeeId)
         {
             var patient = GetPatient(patientURN);
@@ -218,11 +209,7 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
-        /// <summary>
-        /// Returns a comment by it's <paramref name="commentId"/> or null on none found
-        /// </summary>
-        /// <param name="commentId"></param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public PatientComment? GetPatientComment(int commentId)
         {
             using (var conn = _repository.GetConnection())
@@ -259,6 +246,91 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public List<PatientCommentFull> GetCommentsForPatient(int patientURN)
+        {
+            var commentsForPatient = new List<PatientCommentFull>();
+
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    var getCommentLinksQuery = $@"SELECT
+                            [Comments].[{nameof(PatientComment.Id)}] 
+                                AS [{nameof(PatientComment.Id)}],
+                            [Comments].[{nameof(PatientComment.Comment)}] 
+                                AS [{nameof(PatientComment.Comment)}],
+                            [Comments].[{nameof(PatientComment.DateTimeUTC)}]
+                                AS [{nameof(PatientComment.DateTimeUTC)}],
+                            [Employees].[{nameof(Employee.DisplayFirstName)}]
+                                AS [{nameof(Employee.DisplayFirstName)}],
+                            [Employees].[{nameof(Employee.DisplayLastName)}]
+                                AS [{nameof(Employee.DisplayLastName)}]
+                        FROM [{nameof(CommentPatientEmployee)}]
+	                        AS [CommentLink]
+                        INNER JOIN [{nameof(PatientComment)}s]
+	                        AS [Comments] 
+	                        ON [Comments].[{nameof(PatientComment.Id)}] = [CommentLink].[{nameof(CommentPatientEmployee.CommentId)}]
+                        LEFT JOIN [{nameof(Employee)}s] 
+	                        ON [CommentLink].[{nameof(CommentPatientEmployee.EmployeeId)}] = [Employees].[{nameof(Employee.EmployeeId)}]
+                        WHERE [CommentLink].[{nameof(CommentPatientEmployee.PatientId)}] = $patientURN
+                        ORDER BY [Comments].[{nameof(PatientComment.DateTimeUTC)}] ASC";
+
+                    using (var res = _repository.CreateCommand(getCommentLinksQuery, conn, new Dictionary<string, object> { { "patientURN", patientURN } }, transaction))
+                    {
+                        using (var reader = res.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    commentsForPatient.Add(ReaderRowToCommentFull(reader));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return commentsForPatient;
+        }
+
+        /// <inheritdoc/>
+        public PatientHealthDetail? GetPatientHealthDetails(int patientURN)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"SELECT 
+                        [{nameof(PatientHealthDetail.Id)}],
+                        [{nameof(PatientHealthDetail.PatientId)}],
+                        [{nameof(PatientHealthDetail.PresentingIssue)}]
+                    FROM 
+                        [{nameof(PatientHealthDetail)}s]
+                    WHERE 
+                        [{nameof(PatientHealthDetail.PatientId)}] = $patientId";
+
+                using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientId", patientURN } }))
+                {
+                    using (var reader = res.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                return ReaderRowToPatientHealthDetail(reader);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();
@@ -280,6 +352,11 @@ namespace Nulah.HospitalHelper.Data
             }
         }
 
+        /// <summary>
+        /// Converts the row at <paramref name="reader"/> to a <see cref="Patient"/>
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private Patient ReaderRowToPatient(DbDataReader reader)
         {
             return new Patient
@@ -294,6 +371,11 @@ namespace Nulah.HospitalHelper.Data
             };
         }
 
+        /// <summary>
+        /// Converts the row at <paramref name="reader"/> to a <see cref="PatientComment"/>
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         private PatientComment ReaderRowToComment(DbDataReader reader)
         {
             return new PatientComment
@@ -301,6 +383,46 @@ namespace Nulah.HospitalHelper.Data
                 Id = Convert.ToInt32(reader[nameof(PatientComment.Id)]),
                 Comment = (string)reader[nameof(PatientComment.Comment)],
                 DateTimeUTC = new DateTime((long)reader[nameof(PatientComment.DateTimeUTC)])
+            };
+        }
+
+        /// <summary>
+        /// Converts the row at <paramref name="reader"/> to a <see cref="PatientCommentFull"/>
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private PatientCommentFull ReaderRowToCommentFull(DbDataReader reader)
+        {
+            var baseComment = ReaderRowToComment(reader);
+            var comment = new PatientCommentFull
+            {
+                Comment = baseComment.Comment,
+                DateTimeUTC = baseComment.DateTimeUTC,
+                Id = baseComment.Id
+            };
+
+            var nurseFirstName = reader[nameof(Employee.DisplayFirstName)];
+            var nurseLastName = reader[nameof(Employee.DisplayLastName)];
+
+            comment!.Nurse = nurseLastName == DBNull.Value
+                ? (string)nurseFirstName
+                : $"{(string)nurseFirstName} {(string)nurseLastName}";
+
+            return comment;
+        }
+
+        /// <summary>
+        /// Converts the row at <paramref name="reader"/> to a <see cref="PatientHealthDetail"/>
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private PatientHealthDetail ReaderRowToPatientHealthDetail(DbDataReader reader)
+        {
+            return new PatientHealthDetail
+            {
+                Id = Convert.ToInt32(reader[nameof(PatientHealthDetail.Id)]),
+                PatientId = Convert.ToInt32(reader[nameof(PatientHealthDetail.PatientId)]),
+                PresentingIssue = (string)reader[nameof(PatientHealthDetail.PresentingIssue)]
             };
         }
     }

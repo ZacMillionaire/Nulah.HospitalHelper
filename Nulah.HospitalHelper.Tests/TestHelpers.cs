@@ -39,11 +39,10 @@ namespace Nulah.HospitalHelper.Tests
 
                 PopulateBeds(db);
                 PopulatePatients(db);
-
                 PopulatePatientsToBeds(db);
-
                 PopulateEmployees(db);
                 PopulateComments(db);
+                PopulatePatientHealthDetails(db);
             }
         }
 
@@ -150,6 +149,20 @@ namespace Nulah.HospitalHelper.Tests
                 .ExecuteNonQuery();
         }
 
+        private static void PopulatePatientHealthDetails(SqliteConnection db)
+        {
+            var patientHealthDetailsQueryText = $@"INSERT INTO [{nameof(PatientHealthDetail)}s] (
+                    [{nameof(PatientHealthDetail.PatientId)}],
+                    [{nameof(PatientHealthDetail.PresentingIssue)}]
+                ) VALUES
+                    (83524, 'Nausea, dizziness'),
+                    (2, 'Broken leg'),
+                    (3000, 'High fever')";
+
+            new SqliteCommand(patientHealthDetailsQueryText, db)
+                .ExecuteNonQuery();
+        }
+
         private static void InitialiseDatabase(SqliteDataRepository dataRepository)
         {
 
@@ -209,12 +222,19 @@ namespace Nulah.HospitalHelper.Tests
                     [{nameof(Employee.FullName)}] TEXT
                 )";
 
+                var patientHealthDetailsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientHealthDetail)}s] (
+                        [{nameof(PatientHealthDetail.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
+                        [{nameof(PatientHealthDetail.PatientId)}] INTEGER,
+                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL
+                )";
+
                 var createBedTable = new SqliteCommand(bedTableCommand, db);
                 var createPatientTable = new SqliteCommand(patientTableCommand, db);
                 var createBedPatientTable = new SqliteCommand(bedPatientCommand, db);
                 var createCommentsTable = new SqliteCommand(commentTableCommand, db);
                 var createCommentPatientEmployeeTable = new SqliteCommand(commentPatientEmployeeTableCommand, db);
                 var createEmployeeTable = new SqliteCommand(employeeTableCommand, db);
+                var createPatientHealthDetailsTable = new SqliteCommand(patientHealthDetailsTableCommand, db);
 
                 createBedTable.ExecuteReader();
                 createPatientTable.ExecuteReader();
@@ -222,6 +242,7 @@ namespace Nulah.HospitalHelper.Tests
                 createCommentsTable.ExecuteReader();
                 createCommentPatientEmployeeTable.ExecuteReader();
                 createEmployeeTable.ExecuteReader();
+                createPatientHealthDetailsTable.ExecuteReader();
 
                 db.Close();
             }
@@ -259,7 +280,8 @@ namespace Nulah.HospitalHelper.Tests
         internal static PatientManager GetPatientManager()
         {
             var patientRepository = new PatientRepository(_dataRepository);
-            return new PatientManager(patientRepository);
+            var bedRepository = new BedRepository(_dataRepository);
+            return new PatientManager(patientRepository, bedRepository);
         }
 
         /// <summary>
@@ -268,7 +290,7 @@ namespace Nulah.HospitalHelper.Tests
         /// <param name="utcDateTime"></param>
         /// <param name="timeZone"></param>
         /// <returns></returns>
-        private static DateTime CreateDateTimeForTimezone(DateTime utcDateTime, TimeZoneInfo timeZone)
+        public static DateTime CreateDateTimeForTimezone(DateTime utcDateTime, TimeZoneInfo timeZone)
         {
             var dateTimeUnspec = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Unspecified);
             return TimeZoneInfo.ConvertTimeToUtc(dateTimeUnspec, timeZone);

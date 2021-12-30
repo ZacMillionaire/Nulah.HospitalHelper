@@ -13,10 +13,12 @@ namespace Nulah.HospitalHelper.Lib
     public class PatientManager
     {
         private readonly IPatientRepository _patientRepository;
+        private readonly IBedRepository _bedRepository;
 
-        public PatientManager(IPatientRepository patientRepository)
+        public PatientManager(IPatientRepository patientRepository, IBedRepository bedRepository)
         {
             _patientRepository = patientRepository;
+            _bedRepository = bedRepository;
         }
 
         /// <summary>
@@ -75,7 +77,7 @@ namespace Nulah.HospitalHelper.Lib
                 return null;
             }
 
-
+            var bed = _bedRepository.GetBedForPatient(patientURN);
 
             return new PublicPatientDetails
             {
@@ -83,7 +85,19 @@ namespace Nulah.HospitalHelper.Lib
                 DateOfBirth = patient.DateOfBirthUTC,
                 DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
-                URN = patient.URN
+                URN = patient.URN,
+                Comments = patient.Comments
+                    .Select(x => new PublicPatientComment
+                    {
+                        Comment = x.Comment,
+                        DateTimeUTC = x.DateTimeUTC,
+                        Id = x.Id,
+                        Nurse = x.Nurse
+                    })
+                    .ToList(),
+                PresentingIssue = patient.HealthDetails?.PresentingIssue,
+                BedId = bed?.Id,
+                BedNumber = bed?.Number
             };
         }
 
@@ -101,6 +115,7 @@ namespace Nulah.HospitalHelper.Lib
         public PatientComment? AddCommentToPatient(string comment, int patientURN, int employeeID)
         {
             // We assume the employeeId has already been validated via business logic higher up the call chain
+
             var createdComment = _patientRepository.AddCommentToPatient(comment, patientURN, employeeID);
 
             return createdComment;

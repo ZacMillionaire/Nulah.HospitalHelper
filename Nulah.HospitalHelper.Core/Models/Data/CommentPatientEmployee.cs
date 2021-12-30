@@ -1,6 +1,8 @@
-﻿namespace Nulah.HospitalHelper.Core.Models.Data
+﻿using Nulah.HospitalHelper.Core.Interfaces;
+
+namespace Nulah.HospitalHelper.Core.Models.Data
 {
-    public class CommentPatientEmployee
+    public class CommentPatientEmployee 
     {
         public int CommentId { get; set; }
         /// <summary>

@@ -11,6 +11,11 @@ namespace Nulah.HospitalHelper.Core.Interfaces
     public interface IPatientRepository
     {
         /// <summary>
+        /// Returns all top level patient details for all patients
+        /// </summary>
+        /// <returns></returns>
+        public List<Patient> GetPatients();
+        /// <summary>
         /// Returns a patient by their URN
         /// <para>
         /// Returns null if the patient does not exist
@@ -18,18 +23,16 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// </summary>
         /// <param name="patientURN"></param>
         /// <returns></returns>
-        public List<Patient> GetPatients();
-        /// <summary>
-        /// Returns all top level patient details for all patients
-        /// </summary>
-        /// <returns></returns>
         public Patient? GetPatient(int patientURN);
         /// <summary>
-        /// Returns the full details for a patient by URN, including their bed details if admitted, presenting issues, and any comments associated to them
+        /// Returns the full details for a patient by URN, including presenting issues, and any comments associated to them.
+        /// <para>
+        /// Returns null if no patient exists by <paramref name="patientURN"/>
+        /// </para>
         /// </summary>
         /// <param name="patientURN"></param>
         /// <returns></returns>
-        public PatientDetails GetPatientDetails(int patientURN);
+        public PatientDetails? GetPatientDetails(int patientURN);
         /// <summary>
         /// Adds the comment to a patient from an employee.
         /// </summary>
@@ -51,5 +54,23 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="commentId"></param>
         /// <returns></returns>
         PatientComment? GetPatientComment(int commentId);
+        /// <summary>
+        /// Returns all comments for the given <paramref name="patientURN"/>.
+        /// <para>
+        /// If no comments are found, an empty <see cref="List{T}"/> of <see cref="PatientCommentFull"/> is returned
+        /// </para>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns></returns>
+        List<PatientCommentFull> GetCommentsForPatient(int patientURN);
+        /// <summary>
+        /// Returns a patients health details by <paramref name="patientURN"/>
+        /// <para>
+        /// Returns null if the patient has no health detail recorded
+        /// </para>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns></returns>
+        PatientHealthDetail? GetPatientHealthDetails(int patientURN);
     }
 }

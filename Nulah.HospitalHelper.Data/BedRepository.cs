@@ -84,6 +84,31 @@ namespace Nulah.HospitalHelper.Data
             }
         }
 
+        /// <inheritdoc/>
+        public Bed? GetBedForPatient(int patientURN)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"SELECT [{nameof(BedPatient.BedId)}]
+                    FROM [{nameof(BedPatient)}]
+                    WHERE [{nameof(BedPatient.PatientId)}] = $patientURN";
+
+                using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientURN", patientURN } }))
+                {
+                    var bedId = res.ExecuteScalar() as long?;
+
+                    if (bedId != null)
+                    {
+                        return GetBedById(Convert.ToInt32(bedId));
+                    }
+                }
+            }
+            return null;
+
+        }
+
         /// <summary>
         /// Converts the current row in the given reader to a <see cref="Bed"/> object
         /// </summary>
