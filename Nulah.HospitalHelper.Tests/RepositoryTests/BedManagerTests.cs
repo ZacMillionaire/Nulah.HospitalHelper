@@ -15,6 +15,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         {
             TestHelpers.ReseedDatabase();
         }
+
         [TestMethod]
         public void GetAllBeds_ShouldReturn_AllBeds()
         {
@@ -33,7 +34,6 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.IsTrue(beds != null);
             Assert.IsTrue(beds.BedNumber == 1);
-            Assert.IsTrue(beds.Id == new Guid(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1));
         }
 
         [TestMethod]
