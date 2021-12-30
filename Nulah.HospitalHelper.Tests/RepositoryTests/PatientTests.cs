@@ -96,14 +96,22 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         [TestMethod]
         public void CreateNewPatient_ShouldReturn_NewPatient()
         {
-            //var patientManager = TestHelpers.GetPatientManager();
+            var patientManager = TestHelpers.GetPatientManager();
 
-            //var a = new PublicPatient
-            //{
+            // Don't reuse the for new patient to ensure 2 separate calls produce the same date time
+            var DoB_Brisbane = TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.Utc);
 
-            //};
+            var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
-            //patientManager.CreateNewPatient("Pascal", "Nulah");
+            Assert.AreEqual("Pascal Nulah", newPatient.FullName);
+            Assert.AreEqual("Pascal Nulah", newPatient.DisplayName);
+            Assert.AreEqual("Pascal", newPatient.DisplayFirstName);
+            Assert.AreEqual("Nulah", newPatient.DisplayLastName);
+
+            // Check that the DoB added for a date of birth in Brisbane matches the local time conversion from the patient manager
+            Assert.AreEqual(DoB_Brisbane.ToShortTimeString(), newPatient.DateOfBirth.ToLocalTime().ToShortTimeString());
+            Assert.AreEqual(DoB_Brisbane.ToShortDateString(), newPatient.DateOfBirth.ToLocalTime().ToShortDateString());
+
         }
     }
 }

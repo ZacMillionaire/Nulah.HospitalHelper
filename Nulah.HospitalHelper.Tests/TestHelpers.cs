@@ -68,7 +68,7 @@ namespace Nulah.HospitalHelper.Tests
 
         public static void PopulatePatients(SqliteConnection db)
         {
-            // DoB is assumed to be UTC
+            // DoB is assumed to be UTC, but created patients should be done in a local timezone or other
             var createPatientsQueryText = $@"INSERT INTO [{nameof(Patient)}s] (
                     [{nameof(Patient.URN)}],
                     [{nameof(Patient.Id)}],

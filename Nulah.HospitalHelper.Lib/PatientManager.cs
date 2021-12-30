@@ -105,6 +105,37 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
+        /// Creates a new patient
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public PublicPatient CreateNewPatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
+        {
+            var newPatient = _patientRepository.CreatePatient(fullName, displayFirstName, displayLastName, dateOfBirthUTC);
+
+            if (newPatient == null)
+            {
+                // Generic throw if we had a "silent error" that resulted in no patient being created.
+                throw new Exception("Failed to create new patient");
+            }
+
+            return new PublicPatient
+            {
+                Id = newPatient.Id,
+                DisplayName = Formatters.PersonNameToDisplayFormat(newPatient.DisplayFirstName, newPatient.DisplayLastName),
+                FullName = newPatient.FullName,
+                DateOfBirth = newPatient.DateOfBirthUTC,
+                DisplayFirstName = newPatient.DisplayFirstName,
+                DisplayLastName = newPatient.DisplayLastName,
+                URN = newPatient.URN
+            };
+        }
+
+        /// <summary>
         /// Adds a <paramref name="comment"/> to a patient by <paramref name="patientURN"/>, and associates it to an employee by <paramref name="employeeID"/>
         /// <para>
         /// This method assumes <paramref name="employeeID"/> has already been validated to exist.

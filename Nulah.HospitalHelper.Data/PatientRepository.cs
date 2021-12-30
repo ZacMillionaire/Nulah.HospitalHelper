@@ -336,6 +336,64 @@ namespace Nulah.HospitalHelper.Data
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
+        public Patient? CreatePatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    var createPatientQueryText = $@"INSERT INTO [{nameof(Patient)}s] (
+                        [{nameof(Patient.Id)}],
+                        [{nameof(Patient.DisplayFirstName)}],
+                        [{nameof(Patient.DisplayLastName)}],
+                        [{nameof(Patient.FullName)}],
+                        [{nameof(Patient.DateOfBirthUTC)}] 
+                    ) VALUES (
+                        $patientId,
+                        $displayFirstName,
+                        $displayLastName,
+                        $fullName,
+                        $dateOfBirthUTC
+                    )";
+
+                    var createPatientParameters = new Dictionary<string, object> {
+                        { "patientId", Guid.NewGuid() },
+                        { "displayFirstName", displayFirstName },
+                        { "displayLastName", displayLastName ?? "NULL" },
+                        { "fullName", fullName },
+                        { "dateOfBirthUTC", dateOfBirthUTC.Ticks },
+                    };
+
+                    using (var res = _repository.CreateCommand(createPatientQueryText, conn, createPatientParameters, transaction))
+                    {
+                        var rowsCreated = res.ExecuteNonQuery();
+
+                        if (rowsCreated == 1)
+                        {
+                            var patientInsertId = GetLastInsertId(conn, transaction);
+
+                            if (patientInsertId != null)
+                            {
+                                transaction.Commit();
+                                return GetPatient((int)patientInsertId);
+                            }
+                        }
+                    }
+
+                    // Rollback the transaction if we fail to find the inserted comment to return, or if some other unknown branch
+                    // caused a silent error
+                    transaction.Rollback();
+                }
+            }
+
+            // Should probably throw instead if the patient failed to be created
+            return null;
+        }
+
+
         /// <summary>
         /// Returns the rowid of the last INSERT command for the given <paramref name="dbConnection"/>
         /// </summary>
