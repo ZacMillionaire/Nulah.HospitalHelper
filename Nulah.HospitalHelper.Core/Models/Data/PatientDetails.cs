@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Nulah.HospitalHelper.Core.Models.Data
 {
-    public class PatientHealthDetail
+    public class PatientDetails : Patient
     {
-        public int Id { get; set; }
-        public int PatientId { get; set; }
-        public string PresentingIssue { get; set; } = string.Empty;
+        public List<PatientCommentFull> Comments { get; set; } = new();
+        public PatientHealthDetail? HealthDetails { get; set; }
     }
 }
