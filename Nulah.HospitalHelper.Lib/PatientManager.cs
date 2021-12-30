@@ -1,4 +1,5 @@
-﻿using Nulah.HospitalHelper.Core.Interfaces;
+﻿using Nulah.HospitalHelper.Core;
+using Nulah.HospitalHelper.Core.Interfaces;
 using Nulah.HospitalHelper.Core.Models;
 using Nulah.HospitalHelper.Core.Models.Data;
 using System;
@@ -57,7 +58,9 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
-                DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayFirstName = patient.DisplayFirstName,
+                DisplayLastName = patient.DisplayLastName,
                 FullName = patient.FullName,
                 URN = patient.URN
             };
@@ -83,7 +86,7 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
-                DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,
                 Comments = patient.Comments
@@ -119,26 +122,6 @@ namespace Nulah.HospitalHelper.Lib
             var createdComment = _patientRepository.AddCommentToPatient(comment, patientURN, employeeID);
 
             return createdComment;
-        }
-
-        /// <summary>
-        /// Returns a patients display name given their first and last display names.
-        /// <para>
-        /// If <paramref name="displayLastName"/> is null, <paramref name="displayFirstName"/> will be returned,
-        /// otherwise "<paramref name="displayFirstName"/> <paramref name="displayLastName"/>" will be returned
-        /// </para>
-        /// </summary>
-        /// <param name="displayFirstName"></param>
-        /// <param name="displayLastName"></param>
-        /// <returns></returns>
-        private string GetDisplayName(string displayFirstName, string? displayLastName = null)
-        {
-            if (string.IsNullOrWhiteSpace(displayLastName))
-            {
-                return displayFirstName;
-            }
-
-            return $"{displayFirstName} {displayLastName}";
         }
     }
 }
