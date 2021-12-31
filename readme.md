@@ -17,6 +17,7 @@
 - Patient comments are related to patients, so will not have their own repository to manage them and are instead handled by the PatientManager
 - Test run length isn't a consideration, but due to reseeding the database for each test, test duration may be unreasonably long depending on processor
 	- Ideally I'd just be doing an in-memory mock of the repository but I decided to double dip on test data to speed up also creating the database and repositories
+- Admitting a patient (assigning to a bed) requires a presenting issue
 
 ## Running
 

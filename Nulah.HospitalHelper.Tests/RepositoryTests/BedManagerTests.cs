@@ -4,6 +4,7 @@ using Nulah.HospitalHelper.Lib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Nulah.HospitalHelper.Tests.RepositoryTests
 {
@@ -19,11 +20,32 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         [TestMethod]
         public void GetAllBeds_ShouldReturn_AllBeds()
         {
+            var tz = TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time");
+
             var bedManager = TestHelpers.GetBedManager();
             var beds = bedManager.GetBeds();
 
             Assert.IsTrue(beds.Count > 0);
             Assert.IsTrue(beds.Count == 8);
+
+            var bedForJohnDoe = beds[0];
+            var bedForLornaSmith = beds[4];
+            var bedForDianaMay = beds[5];
+
+            Assert.AreEqual("John Doe", bedForJohnDoe.Patient!.DisplayName);
+            Assert.AreEqual("Nausea, dizziness", bedForJohnDoe.Patient!.PresentingIssue);
+            Assert.AreEqual("Blood pressure checked", bedForJohnDoe.LastComment);
+            Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 0), tz).ToUniversalTime(), bedForJohnDoe.LastUpdatedUTC);
+
+            Assert.AreEqual("Lorna Smith", bedForLornaSmith.Patient!.DisplayName);
+            Assert.AreEqual("Broken Leg", bedForLornaSmith.Patient!.PresentingIssue);
+            Assert.AreEqual("X-Ray waiting results", bedForLornaSmith.LastComment);
+            Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), tz).ToUniversalTime(), bedForLornaSmith.LastUpdatedUTC);
+
+            Assert.AreEqual("Diana May", bedForDianaMay.Patient!.DisplayName);
+            Assert.AreEqual("High fever", bedForLornaSmith.Patient!.PresentingIssue);
+            Assert.AreEqual("Medication supplied", bedForLornaSmith.LastComment);
+            Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), tz).ToUniversalTime(), bedForDianaMay.LastUpdatedUTC);
         }
 
         [TestMethod]
