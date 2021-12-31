@@ -173,7 +173,7 @@ namespace Nulah.HospitalHelper.Data
 
                     var linkCommentQuery = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
                             [{nameof(CommentPatientEmployee.CommentId)}],
-                            [{nameof(CommentPatientEmployee.PatientId)}],
+                            [{nameof(CommentPatientEmployee.PatientURN)}],
                             [{nameof(CommentPatientEmployee.EmployeeId)}]
                         ) VALUES (
                             $commentId, 
@@ -275,7 +275,7 @@ namespace Nulah.HospitalHelper.Data
 	                        ON [Comments].[{nameof(PatientComment.Id)}] = [CommentLink].[{nameof(CommentPatientEmployee.CommentId)}]
                         LEFT JOIN [{nameof(Employee)}s] 
 	                        ON [CommentLink].[{nameof(CommentPatientEmployee.EmployeeId)}] = [Employees].[{nameof(Employee.EmployeeId)}]
-                        WHERE [CommentLink].[{nameof(CommentPatientEmployee.PatientId)}] = $patientURN
+                        WHERE [CommentLink].[{nameof(CommentPatientEmployee.PatientURN)}] = $patientURN
                         ORDER BY [Comments].[{nameof(PatientComment.DateTimeUTC)}] ASC";
 
                     using (var res = _repository.CreateCommand(getCommentLinksQuery, conn, new Dictionary<string, object> { { "patientURN", patientURN } }, transaction))

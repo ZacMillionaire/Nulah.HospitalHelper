@@ -52,6 +52,11 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var patientManager = TestHelpers.GetPatientManager();
             var patientFullDetails = patientManager.GetPatientDetails(83524);
 
+            Assert.AreEqual("John", patientFullDetails!.DisplayFirstName);
+            Assert.AreEqual("Doe", patientFullDetails!.DisplayLastName);
+            Assert.AreEqual(Formatters.PersonNameToDisplayFormat("John", "Doe"), patientFullDetails!.DisplayName);
+            Assert.AreEqual("John Doe", patientFullDetails!.FullName);
+
             Assert.IsTrue(patientFullDetails!.Comments.Count == 4);
             Assert.IsTrue(patientFullDetails.Comments[0].Comment == "Admitted");
             Assert.IsTrue(patientFullDetails.Comments[1].Comment == "Temp checked");
@@ -103,6 +108,9 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
+            // URN is high due to a higher number URN being created in test data.
+            // This is not an arbitrary number
+            Assert.AreEqual(83525, newPatient.URN);
             Assert.AreEqual("Pascal Nulah", newPatient.FullName);
             Assert.AreEqual("Pascal Nulah", newPatient.DisplayName);
             Assert.AreEqual("Pascal", newPatient.DisplayFirstName);
@@ -112,6 +120,102 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             Assert.AreEqual(DoB_Brisbane.ToShortTimeString(), newPatient.DateOfBirth.ToLocalTime().ToShortTimeString());
             Assert.AreEqual(DoB_Brisbane.ToShortDateString(), newPatient.DateOfBirth.ToLocalTime().ToShortDateString());
 
+        }
+
+        [TestMethod]
+        public void AddPatient_83525_ToBed_2_ShouldReturn_True()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
+
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 2);
+
+            Assert.IsTrue(addToBedResult);
+        }
+
+        [TestMethod]
+        public void AddPatient_83525_ToBed_1_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
+
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 1);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void AddPatient_83525_ToBedThatDoesNotExist_100_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
+
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 100);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void AddPatientAlreadyInABed_83524_ToBedThatIsFree_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(83524, 2);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void PatientThatDoesNotExist_9999_ToBed_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(9999, 2);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_FromBed_1_ShouldReturn_True()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 1);
+
+            Assert.IsTrue(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_FromBed_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 2);
+
+            Assert.IsFalse(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_ToBedThatDoesNotExist_100_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 100);
+
+            Assert.IsFalse(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatientNotAssignedToBed_3000_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(30000, 2);
+
+            Assert.IsFalse(addToBedResult);
         }
     }
 }

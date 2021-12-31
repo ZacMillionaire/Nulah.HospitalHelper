@@ -50,17 +50,16 @@ namespace Nulah.HospitalHelper.Tests
         {
             var createBedsQueryText = $@"INSERT INTO [{nameof(Bed)}s] (
                     [{nameof(Bed.Id)}],
-                    [{nameof(Bed.BedStatus)}],
-                    [{nameof(Bed.LastUpdateUTC)}]
+                    [{nameof(Bed.BedStatus)}]
                 ) VALUES 
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 22), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL);";
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free});";
 
             new SqliteCommand(createBedsQueryText, db)
                 .ExecuteNonQuery();
@@ -88,8 +87,8 @@ namespace Nulah.HospitalHelper.Tests
         private static void PopulatePatientsToBeds(SqliteConnection db)
         {
             var linkPatientsToBedsQueryText = $@"INSERT INTO [{nameof(BedPatient)}] (
-                [{nameof(BedPatient.BedId)}],
-                [{nameof(BedPatient.PatientId)}]
+                [{nameof(BedPatient.BedNumber)}],
+                [{nameof(BedPatient.PatientURN)}]
             ) VALUES
                 (1,83524),
                 (5,2),
@@ -116,17 +115,15 @@ namespace Nulah.HospitalHelper.Tests
 
         private static void PopulateComments(SqliteConnection db)
         {
-            var commentDateTime = CreateDateTimeForTimezone(new DateTime(2020, 2, 2), _tz).ToUniversalTime().Ticks;
-
             // Create the initial comments
             var commentsQueryText = $@"INSERT INTO [{nameof(PatientComment)}s] (
                 [{nameof(PatientComment.Comment)}],
                 [{nameof(PatientComment.DateTimeUTC)}]
             ) VALUES
-                ('Admitted',{commentDateTime}),
-                ('Temp checked',{commentDateTime}),
-                ('Blood pressure checked',{commentDateTime}),
-                ('Discharged',{commentDateTime}),
+                ('Admitted',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 50, 0), _tz).ToUniversalTime().Ticks}),
+                ('Temp checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 55, 0), _tz).ToUniversalTime().Ticks}),
+                ('Blood pressure checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 0), _tz).ToUniversalTime().Ticks}),
+                ('Discharged',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), _tz).ToUniversalTime().Ticks}),
                 ('X-Ray waiting results',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
                 ('Medication supplied',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks});";
 
@@ -135,7 +132,7 @@ namespace Nulah.HospitalHelper.Tests
 
             var commentPatientEmployeeQueryText = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
                     [{nameof(CommentPatientEmployee.CommentId)}],
-                    [{nameof(CommentPatientEmployee.PatientId)}],
+                    [{nameof(CommentPatientEmployee.PatientURN)}],
                     [{nameof(CommentPatientEmployee.EmployeeId)}]
                 ) VALUES 
                     (1,83524,1),
@@ -175,8 +172,7 @@ namespace Nulah.HospitalHelper.Tests
                 var bedTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Bed)}s] (
                     [{nameof(Bed.Number)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                     [{nameof(Bed.Id)}] TEXT,
-                    [{nameof(Bed.BedStatus)}] INTEGER,
-                    [{nameof(Bed.LastUpdateUTC)}] INTEGER
+                    [{nameof(Bed.BedStatus)}] INTEGER
                 )";
 
                 var patientTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Patient)}s] (
@@ -189,12 +185,14 @@ namespace Nulah.HospitalHelper.Tests
                 )";
 
                 var bedPatientCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(BedPatient)}] (
-                    [{nameof(BedPatient.BedId)}] INTEGER NOT NULL,
-                    [{nameof(BedPatient.PatientId)}] INTEGER NOT NULL,
+                    [{nameof(BedPatient.BedNumber)}] INTEGER NOT NULL UNIQUE,
+                    [{nameof(BedPatient.PatientURN)}] INTEGER NOT NULL UNIQUE,
                     PRIMARY KEY (
-                        {nameof(BedPatient.BedId)},
-                        {nameof(BedPatient.PatientId)}
-                    )
+                        {nameof(BedPatient.BedNumber)},
+                        {nameof(BedPatient.PatientURN)}
+                    ),
+                    FOREIGN KEY({nameof(BedPatient.BedNumber)}) REFERENCES [{nameof(Bed)}s]({nameof(Bed.Number)}),
+                    FOREIGN KEY({nameof(BedPatient.PatientURN)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)})
                 )";
 
                 var commentTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientComment)}s] (
@@ -205,13 +203,16 @@ namespace Nulah.HospitalHelper.Tests
 
                 var commentPatientEmployeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(CommentPatientEmployee)}] (
                     [{nameof(CommentPatientEmployee.CommentId)}] INTEGER NOT NULL,
-                    [{nameof(CommentPatientEmployee.PatientId)}] INTEGER NOT NULL,
+                    [{nameof(CommentPatientEmployee.PatientURN)}] INTEGER NOT NULL,
                     [{nameof(CommentPatientEmployee.EmployeeId)}] INTEGER NOT NULL,
                     PRIMARY KEY (
                         {nameof(CommentPatientEmployee.CommentId)},
-                        {nameof(CommentPatientEmployee.PatientId)},
+                        {nameof(CommentPatientEmployee.PatientURN)},
                         {nameof(CommentPatientEmployee.EmployeeId)}
-                    )
+                    ),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.CommentId)}) REFERENCES [{nameof(PatientComment)}s]({nameof(PatientComment.Id)}),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.PatientURN)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)}),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.EmployeeId)}) REFERENCES [{nameof(Employee)}s]({nameof(Employee.EmployeeId)})
                 )";
 
                 var employeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Employee)}s] (
@@ -225,7 +226,8 @@ namespace Nulah.HospitalHelper.Tests
                 var patientHealthDetailsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientHealthDetail)}s] (
                         [{nameof(PatientHealthDetail.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                         [{nameof(PatientHealthDetail.PatientId)}] INTEGER,
-                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL
+                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL,
+                    FOREIGN KEY({nameof(PatientHealthDetail.PatientId)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)})
                 )";
 
                 var createBedTable = new SqliteCommand(bedTableCommand, db);

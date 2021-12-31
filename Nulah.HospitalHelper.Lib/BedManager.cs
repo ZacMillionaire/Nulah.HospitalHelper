@@ -25,15 +25,14 @@ namespace Nulah.HospitalHelper.Lib
             return beds.Select(x => new PublicBed
             {
                 BedNumber = x.Number,
-                BedStatus = x.BedStatus,
-                LastUpdateUTC = x.LastUpdateUTC
+                BedStatus = x.BedStatus
             })
             .ToList();
         }
 
         public PublicBed? GetBedById(int bedId)
         {
-            var bed = _bedRepository.GetBedById(bedId);
+            var bed = _bedRepository.GetBedByNumber(bedId);
 
             if (bed == null)
             {
@@ -44,8 +43,7 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = bed.Id,
                 BedNumber = bed.Number,
-                BedStatus = bed.BedStatus,
-                LastUpdateUTC = bed.LastUpdateUTC
+                BedStatus = bed.BedStatus
             };
         }
     }

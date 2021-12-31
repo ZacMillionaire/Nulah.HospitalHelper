@@ -86,6 +86,8 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
+                DisplayFirstName = patient.DisplayFirstName,
+                DisplayLastName= patient.DisplayLastName,
                 DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,
@@ -153,6 +155,42 @@ namespace Nulah.HospitalHelper.Lib
             var createdComment = _patientRepository.AddCommentToPatient(comment, patientURN, employeeID);
 
             return createdComment;
+        }
+
+        /// <summary>
+        /// Adds a patient to a bed, return true on success, or false if the bed is in use or does not exist
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <returns></returns>
+        public bool AddPatientToBed(int patientURN, int bedNumber)
+        {
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                return false;
+            }
+
+            return _bedRepository.AddPatientToBed(patientURN, bedNumber);
+        }
+
+        /// <summary>
+        /// Removes a patient from a bed, returning true on success, or false if the patient is not assigned to that bed, or the bed does not exist
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <returns></returns>
+        public bool RemovePatientFromBed(int patientURN, int bedNumber)
+        {
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                return false;
+            }
+
+            return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
         }
     }
 }
