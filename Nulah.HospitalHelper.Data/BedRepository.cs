@@ -143,7 +143,36 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public bool RemovePatientFromBed(int patientURN, int bedNumber)
         {
-            throw new NotImplementedException();
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                // Return false if the bed is not occupied or does not exist
+                if (GetBedStatus(bedNumber) != BedStatus.InUse)
+                {
+                    return false;
+                }
+
+                var bedPatientQuery = $@"DELETE FROM 
+                        [{nameof(BedPatient)}]
+                    WHERE 
+                        [{nameof(BedPatient.BedNumber)}] = $bedNumber 
+                    AND 
+                        [{nameof(BedPatient.PatientURN)}] = $patientId";
+
+                var bedPatientQueryParams = new Dictionary<string, object>
+                {
+                    { "bedNumber",bedNumber },
+                    { "patientId", patientURN }
+                };
+
+                using (var res = _repository.CreateCommand(bedPatientQuery, conn, bedPatientQueryParams))
+                {
+                    var rowsInserted = res.ExecuteNonQuery();
+
+                    return rowsInserted == 1;
+                }
+            }
         }
 
         /// <inheritdoc/>

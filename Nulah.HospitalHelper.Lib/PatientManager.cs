@@ -155,15 +155,40 @@ namespace Nulah.HospitalHelper.Lib
             return createdComment;
         }
 
-        public bool AddPatientToBed(int patientURN, int bedId)
+        /// <summary>
+        /// Adds a patient to a bed, return true on success, or false if the bed is in use or does not exist
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <returns></returns>
+        public bool AddPatientToBed(int patientURN, int bedNumber)
         {
-            return _bedRepository.AddPatientToBed(patientURN, bedId);
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                return false;
+            }
+
+            return _bedRepository.AddPatientToBed(patientURN, bedNumber);
         }
 
-        public bool RemovePatientFromBed(int patientURN, int bedId)
+        /// <summary>
+        /// Removes a patient from a bed, returning true on success, or false if the patient is not assigned to that bed, or the bed does not exist
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <returns></returns>
+        public bool RemovePatientFromBed(int patientURN, int bedNumber)
         {
-            var bedUpdated = _bedRepository.RemovePatientFromBed(patientURN, bedId);
-            return false;
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                return false;
+            }
+
+            return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
         }
     }
 }

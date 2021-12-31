@@ -132,7 +132,7 @@ namespace Nulah.HospitalHelper.Tests
 
             var commentPatientEmployeeQueryText = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
                     [{nameof(CommentPatientEmployee.CommentId)}],
-                    [{nameof(CommentPatientEmployee.PatientId)}],
+                    [{nameof(CommentPatientEmployee.PatientURN)}],
                     [{nameof(CommentPatientEmployee.EmployeeId)}]
                 ) VALUES 
                     (1,83524,1),
@@ -190,7 +190,9 @@ namespace Nulah.HospitalHelper.Tests
                     PRIMARY KEY (
                         {nameof(BedPatient.BedNumber)},
                         {nameof(BedPatient.PatientURN)}
-                    )
+                    ),
+                    FOREIGN KEY({nameof(BedPatient.BedNumber)}) REFERENCES [{nameof(Bed)}s]({nameof(Bed.Number)}),
+                    FOREIGN KEY({nameof(BedPatient.PatientURN)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)})
                 )";
 
                 var commentTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientComment)}s] (
@@ -201,13 +203,16 @@ namespace Nulah.HospitalHelper.Tests
 
                 var commentPatientEmployeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(CommentPatientEmployee)}] (
                     [{nameof(CommentPatientEmployee.CommentId)}] INTEGER NOT NULL,
-                    [{nameof(CommentPatientEmployee.PatientId)}] INTEGER NOT NULL,
+                    [{nameof(CommentPatientEmployee.PatientURN)}] INTEGER NOT NULL,
                     [{nameof(CommentPatientEmployee.EmployeeId)}] INTEGER NOT NULL,
                     PRIMARY KEY (
                         {nameof(CommentPatientEmployee.CommentId)},
-                        {nameof(CommentPatientEmployee.PatientId)},
+                        {nameof(CommentPatientEmployee.PatientURN)},
                         {nameof(CommentPatientEmployee.EmployeeId)}
-                    )
+                    ),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.CommentId)}) REFERENCES [{nameof(PatientComment)}s]({nameof(PatientComment.Id)}),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.PatientURN)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)}),
+                    FOREIGN KEY({nameof(CommentPatientEmployee.EmployeeId)}) REFERENCES [{nameof(Employee)}s]({nameof(Employee.EmployeeId)})
                 )";
 
                 var employeeTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Employee)}s] (
@@ -221,7 +226,8 @@ namespace Nulah.HospitalHelper.Tests
                 var patientHealthDetailsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientHealthDetail)}s] (
                         [{nameof(PatientHealthDetail.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                         [{nameof(PatientHealthDetail.PatientId)}] INTEGER,
-                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL
+                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL,
+                    FOREIGN KEY({nameof(PatientHealthDetail.PatientId)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)})
                 )";
 
                 var createBedTable = new SqliteCommand(bedTableCommand, db);

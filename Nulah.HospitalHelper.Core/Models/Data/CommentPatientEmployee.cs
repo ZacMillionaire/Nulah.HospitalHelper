@@ -8,7 +8,7 @@ namespace Nulah.HospitalHelper.Core.Models.Data
         /// <summary>
         /// Patient the comment belongs to
         /// </summary>
-        public int PatientId { get; set; }
+        public int PatientURN { get; set; }
         /// <summary>
         /// Employee who made the comment
         /// </summary>

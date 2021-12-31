@@ -127,7 +127,6 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 2);
 
             Assert.IsTrue(addToBedResult);
-
         }
 
         [TestMethod]
@@ -160,6 +159,56 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var patientManager = TestHelpers.GetPatientManager();
 
             var addToBedResult = patientManager.AddPatientToBed(83524, 2);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void PatientThatDoesNotExist_9999_ToBed_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(9999, 2);
+
+            Assert.IsFalse(addToBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_FromBed_1_ShouldReturn_True()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 1);
+
+            Assert.IsTrue(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_FromBed_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 2);
+
+            Assert.IsFalse(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatient_83524_ToBedThatDoesNotExist_100_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 100);
+
+            Assert.IsFalse(removeFromBedResult);
+        }
+
+        [TestMethod]
+        public void RemovePatientNotAssignedToBed_3000_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(30000, 2);
 
             Assert.IsFalse(addToBedResult);
         }
