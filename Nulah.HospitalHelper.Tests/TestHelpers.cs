@@ -276,7 +276,8 @@ namespace Nulah.HospitalHelper.Tests
         internal static BedManager GetBedManager()
         {
             var bedRepository = new BedRepository(_dataRepository);
-            return new BedManager(bedRepository);
+            var patientRepository = new PatientRepository(_dataRepository);
+            return new BedManager(bedRepository, patientRepository);
         }
 
         internal static PatientManager GetPatientManager()

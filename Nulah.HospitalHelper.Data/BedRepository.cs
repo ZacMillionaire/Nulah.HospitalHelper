@@ -20,14 +20,23 @@ namespace Nulah.HospitalHelper.Data
         }
 
         /// <inheritdoc/>
-        public List<Bed> GetBeds()
+        public List<BedDetails> GetBeds()
         {
-            var beds = new List<Bed>();
+            var beds = new List<BedDetails>();
+
             using (var conn = _repository.GetConnection())
             {
                 conn.Open();
 
-                var query = "SELECT * FROM [Beds]";
+                var query = @$"SELECT 
+	                            [{nameof(Bed)}s].[{nameof(Bed.Id)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.Number)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.BedStatus)}],
+	                            [BP].[{nameof(BedPatient.PatientURN)}]
+                            FROM
+	                            [{nameof(Bed)}s]
+                            LEFT JOIN [{nameof(BedPatient)}] AS [BP]
+	                            ON [{nameof(Bed)}s].[{nameof(Bed.Number)}] = [BP].[{nameof(BedPatient.BedNumber)}]";
 
                 using (var res = _repository.CreateCommand(query, conn))
                 {
@@ -48,15 +57,23 @@ namespace Nulah.HospitalHelper.Data
         }
 
         /// <inheritdoc/>
-        public Bed? GetBedByNumber(int bedNumber)
+        public BedDetails? GetBedByNumber(int bedNumber)
         {
             using (var conn = _repository.GetConnection())
             {
                 conn.Open();
 
-                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}]" +
-                    $"FROM [{nameof(Bed)}s]" +
-                    $"WHERE [{nameof(Bed.Number)}] = $bedNumber";
+                var query = @$"SELECT 
+	                            [{nameof(Bed)}s].[{nameof(Bed.Id)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.Number)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.BedStatus)}],
+	                            [BP].[{nameof(BedPatient.PatientURN)}]
+                            FROM
+	                            [{nameof(Bed)}s]
+                            LEFT JOIN [{nameof(BedPatient)}] AS [BP]
+	                            ON [{nameof(Bed)}s].[{nameof(Bed.Number)}] = [BP].[{nameof(BedPatient.BedNumber)}]
+                            WHERE 
+                                [{nameof(Bed.Number)}] = $bedNumber";
 
                 using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "bedNumber", bedNumber } }))
                 {
@@ -69,15 +86,14 @@ namespace Nulah.HospitalHelper.Data
                                 return ReaderRowToBed(reader);
                             }
                         }
-
-                        return null;
                     }
                 }
             }
+            return null;
         }
 
         /// <inheritdoc/>
-        public Bed? GetBedForPatient(int patientURN)
+        public BedDetails? GetBedForPatient(int patientURN)
         {
             using (var conn = _repository.GetConnection())
             {
@@ -211,13 +227,16 @@ namespace Nulah.HospitalHelper.Data
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private Bed ReaderRowToBed(DbDataReader reader)
+        private BedDetails ReaderRowToBed(DbDataReader reader)
         {
-            return new Bed
+            return new BedDetails
             {
                 Id = Guid.Parse((string)reader[nameof(Bed.Id)]),
                 BedStatus = (BedStatus)Convert.ToInt32(reader[nameof(Bed.BedStatus)]),
-                Number = Convert.ToInt32(reader[nameof(Bed.Number)])
+                Number = Convert.ToInt32(reader[nameof(Bed.Number)]),
+                PatientURN = reader[nameof(BedPatient.PatientURN)] != DBNull.Value
+                    ? Convert.ToInt32(reader[nameof(BedPatient.PatientURN)])
+                    : null
             };
         }
     }

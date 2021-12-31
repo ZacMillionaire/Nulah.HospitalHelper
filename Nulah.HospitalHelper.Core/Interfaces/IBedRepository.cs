@@ -15,19 +15,19 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// </summary>
         /// <param name="bedNumber"></param>
         /// <returns></returns>
-        Bed? GetBedByNumber(int bedNumber);
+        BedDetails? GetBedByNumber(int bedNumber);
         /// <summary>
         /// Returns the bed for a given patient by <paramref name="patientURN"/>, or null if they are not assigned to a bed
         /// </summary>
         /// <param name="patientURN"></param>
         /// <returns></returns>
-        Bed? GetBedForPatient(int patientURN);
+        BedDetails? GetBedForPatient(int patientURN);
         /// <summary>
         /// Returns all available beds in the database.
-        /// <para>Will always return a <see cref="List{Bed}"/> of <see cref="Bed"/></para>
+        /// <para>Will always return a <see cref="List{BedDetails}"/> of <see cref="BedDetails"/></para>
         /// </summary>
         /// <returns></returns>
-        List<Bed> GetBeds();
+        List<BedDetails> GetBeds();
         /// <summary>
         /// Adds a patient to a bed
         /// </summary>
