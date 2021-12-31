@@ -116,17 +116,15 @@ namespace Nulah.HospitalHelper.Tests
 
         private static void PopulateComments(SqliteConnection db)
         {
-            var commentDateTime = CreateDateTimeForTimezone(new DateTime(2020, 2, 2), _tz).ToUniversalTime().Ticks;
-
             // Create the initial comments
             var commentsQueryText = $@"INSERT INTO [{nameof(PatientComment)}s] (
                 [{nameof(PatientComment.Comment)}],
                 [{nameof(PatientComment.DateTimeUTC)}]
             ) VALUES
-                ('Admitted',{commentDateTime}),
-                ('Temp checked',{commentDateTime}),
-                ('Blood pressure checked',{commentDateTime}),
-                ('Discharged',{commentDateTime}),
+                ('Admitted',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 50, 0), _tz).ToUniversalTime().Ticks}),
+                ('Temp checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 55, 0), _tz).ToUniversalTime().Ticks}),
+                ('Blood pressure checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), _tz).ToUniversalTime().Ticks}),
+                ('Discharged',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
                 ('X-Ray waiting results',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
                 ('Medication supplied',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks});";
 
