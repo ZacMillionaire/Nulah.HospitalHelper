@@ -107,12 +107,15 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                // Return false if the bed is already occupied
+                // Return false if the bed is already occupied or does not exist
                 if (GetBedStatus(bedNumber) != BedStatus.Free)
                 {
                     return false;
                 }
 
+                // Use INSERT OR IGNORE here so that the unique constraint on both BedNumber and PatientURN
+                // prevent a patient from being assigned to a bed if they're already assigned to one
+                // and visa versa prevents a bed from being assigned more than 1 patient
                 var bedPatientQuery = $@"INSERT OR IGNORE INTO [{nameof(BedPatient)}] (
                         [{nameof(BedPatient.BedNumber)}], 
                         [{nameof(BedPatient.PatientURN)}]

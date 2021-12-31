@@ -153,5 +153,15 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.IsFalse(addToBedResult);
         }
+
+        [TestMethod]
+        public void AddPatientAlreadyInABed_83524_ToBedThatIsFree_2_ShouldReturn_False()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            var addToBedResult = patientManager.AddPatientToBed(83524, 2);
+
+            Assert.IsFalse(addToBedResult);
+        }
     }
 }
