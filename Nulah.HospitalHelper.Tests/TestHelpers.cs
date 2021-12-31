@@ -50,17 +50,16 @@ namespace Nulah.HospitalHelper.Tests
         {
             var createBedsQueryText = $@"INSERT INTO [{nameof(Bed)}s] (
                     [{nameof(Bed.Id)}],
-                    [{nameof(Bed.BedStatus)}],
-                    [{nameof(Bed.LastUpdateUTC)}]
+                    [{nameof(Bed.BedStatus)}]
                 ) VALUES 
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 22), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse},{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks}),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL),
-                    ('{Guid.NewGuid()}',{(int)BedStatus.Free},NULL);";
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.InUse}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free}),
+                    ('{Guid.NewGuid()}',{(int)BedStatus.Free});";
 
             new SqliteCommand(createBedsQueryText, db)
                 .ExecuteNonQuery();
@@ -123,8 +122,8 @@ namespace Nulah.HospitalHelper.Tests
             ) VALUES
                 ('Admitted',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 50, 0), _tz).ToUniversalTime().Ticks}),
                 ('Temp checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 55, 0), _tz).ToUniversalTime().Ticks}),
-                ('Blood pressure checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), _tz).ToUniversalTime().Ticks}),
-                ('Discharged',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
+                ('Blood pressure checked',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 25, 0), _tz).ToUniversalTime().Ticks}),
+                ('Discharged',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), _tz).ToUniversalTime().Ticks}),
                 ('X-Ray waiting results',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), _tz).ToUniversalTime().Ticks}),
                 ('Medication supplied',{CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), _tz).ToUniversalTime().Ticks});";
 
@@ -173,8 +172,7 @@ namespace Nulah.HospitalHelper.Tests
                 var bedTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Bed)}s] (
                     [{nameof(Bed.Number)}] INTEGER PRIMARY KEY AUTOINCREMENT,
                     [{nameof(Bed.Id)}] TEXT,
-                    [{nameof(Bed.BedStatus)}] INTEGER,
-                    [{nameof(Bed.LastUpdateUTC)}] INTEGER
+                    [{nameof(Bed.BedStatus)}] INTEGER
                 )";
 
                 var patientTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(Patient)}s] (

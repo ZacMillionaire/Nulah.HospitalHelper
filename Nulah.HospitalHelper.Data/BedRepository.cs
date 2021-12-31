@@ -62,7 +62,7 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}], [{nameof(Bed.LastUpdateUTC)}]" +
+                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}]" +
                     $"FROM [{nameof(Bed)}s]" +
                     $"WHERE [{nameof(Bed.Number)}] = $bedId";
 
@@ -106,7 +106,34 @@ namespace Nulah.HospitalHelper.Data
                 }
             }
             return null;
+        }
 
+        public Bed? AddPatientToBed(int patientURN, int bedId)
+        {
+            //using (var conn = _repository.GetConnection())
+            //{
+            //    conn.Open();
+
+            //    var query = $@"INSERT INTO [{nameof(BedPatient.BedId)}]
+            //        FROM [{nameof(BedPatient)}]
+            //        WHERE [{nameof(BedPatient.PatientId)}] = $patientURN";
+
+            //    using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientURN", patientURN } }))
+            //    {
+            //        var bedId = res.ExecuteScalar() as long?;
+
+            //        if (bedId != null)
+            //        {
+            //            return GetBedById(Convert.ToInt32(bedId));
+            //        }
+            //    }
+            //}
+            throw new NotImplementedException();
+        }
+
+        public Bed? RemovePatientFromBed(int patientURN, int bedId)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -120,11 +147,7 @@ namespace Nulah.HospitalHelper.Data
             {
                 Id = Guid.Parse((string)reader[nameof(Bed.Id)]),
                 BedStatus = (BedStatus)Convert.ToInt32(reader[nameof(Bed.BedStatus)]),
-                Number = Convert.ToInt32(reader[nameof(Bed.Number)]),
-                // DateTime is stored as a long from DateTime.UtcNow.Ticks
-                LastUpdateUTC = reader[nameof(Bed.LastUpdateUTC)] != DBNull.Value
-                    ? new DateTime((long)reader[nameof(Bed.LastUpdateUTC)])
-                    : null,
+                Number = Convert.ToInt32(reader[nameof(Bed.Number)])
             };
         }
     }
