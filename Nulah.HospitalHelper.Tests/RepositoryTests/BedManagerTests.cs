@@ -61,11 +61,32 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         [TestMethod]
         public void GetBedByNumber_1_ShouldReturn_Bed1()
         {
-            var bedManager = TestHelpers.GetBedManager();
-            var beds = bedManager.GetBedById(1);
+            var tz = TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time");
 
-            Assert.IsTrue(beds != null);
-            Assert.IsTrue(beds.BedNumber == 1);
+            var bedManager = TestHelpers.GetBedManager();
+            var bed = bedManager.GetBedById(1);
+
+            Assert.IsTrue(bed != null);
+            Assert.IsTrue(bed!.BedNumber == 1);
+
+            Assert.AreEqual("John Doe", bed.Patient!.DisplayName);
+            Assert.AreEqual("Nausea, dizziness", bed.Patient!.PresentingIssue);
+            Assert.AreEqual("Discharged", bed.LastComment);
+            Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), tz).ToUniversalTime(), bed.LastUpdatedUTC);
+            Assert.AreEqual("Kelly A.", bed.Nurse);
+        }
+
+        [TestMethod]
+        public void GetBedByNumber_2_ShouldReturn_Bed2_WithNoPatientDetails()
+        {
+
+            var bedManager = TestHelpers.GetBedManager();
+            var bed = bedManager.GetBedById(2);
+
+            Assert.IsTrue(bed != null);
+            Assert.IsTrue(bed!.BedNumber == 2);
+
+            Assert.IsNull(bed.Patient);
         }
 
         [TestMethod]

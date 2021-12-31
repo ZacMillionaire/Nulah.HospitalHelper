@@ -22,17 +22,44 @@ namespace Nulah.HospitalHelper.Lib
             _patientRepository = patientRepository;
         }
 
+        /// <summary>
+        /// Returns all beds available, including any admitted patients in <see cref="BedStatus.InUse"/> beds
+        /// </summary>
+        /// <returns></returns>
         public List<PublicBed> GetBeds()
         {
             var beds = _bedRepository.GetBeds();
 
             return beds.Select(x => new PublicBed
             {
+                Id = x.Id,
                 BedNumber = x.Number,
                 BedStatus = x.BedStatus,
                 Patient = CreatePublicPatientDetails(x.PatientURN)
             })
             .ToList();
+        }
+
+        /// <summary>
+        /// Returns details for the given bed, if the bed has a status of <see cref="BedStatus.InUse"/>, patient details will also be included
+        /// </summary>
+        /// <returns></returns>
+        public PublicBed? GetBedById(int bedNumber)
+        {
+            var bed = _bedRepository.GetBedByNumber(bedNumber);
+
+            if (bed == null)
+            {
+                return null;
+            }
+
+            return new PublicBed
+            {
+                Id = bed.Id,
+                BedNumber = bed.Number,
+                BedStatus = bed.BedStatus,
+                Patient = CreatePublicPatientDetails(bed.PatientURN)
+            };
         }
 
         private PublicPatientDetails? CreatePublicPatientDetails(int? patientURN)
@@ -68,23 +95,6 @@ namespace Nulah.HospitalHelper.Lib
                     })
                     .ToList(),
                 PresentingIssue = patientDetails.HealthDetails?.PresentingIssue
-            };
-        }
-
-        public PublicBed? GetBedById(int bedId)
-        {
-            var bed = _bedRepository.GetBedByNumber(bedId);
-
-            if (bed == null)
-            {
-                return null;
-            }
-
-            return new PublicBed
-            {
-                Id = bed.Id,
-                BedNumber = bed.Number,
-                BedStatus = bed.BedStatus
             };
         }
     }

@@ -63,9 +63,17 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}]" +
-                    $"FROM [{nameof(Bed)}s]" +
-                    $"WHERE [{nameof(Bed.Number)}] = $bedNumber";
+                var query = @$"SELECT 
+	                            [{nameof(Bed)}s].[{nameof(Bed.Id)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.Number)}],
+	                            [{nameof(Bed)}s].[{nameof(Bed.BedStatus)}],
+	                            [BP].[{nameof(BedPatient.PatientURN)}]
+                            FROM
+	                            [{nameof(Bed)}s]
+                            LEFT JOIN [{nameof(BedPatient)}] AS [BP]
+	                            ON [{nameof(Bed)}s].[{nameof(Bed.Number)}] = [BP].[{nameof(BedPatient.BedNumber)}]
+                            WHERE 
+                                [{nameof(Bed.Number)}] = $bedNumber";
 
                 using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "bedNumber", bedNumber } }))
                 {
@@ -78,11 +86,10 @@ namespace Nulah.HospitalHelper.Data
                                 return ReaderRowToBed(reader);
                             }
                         }
-
-                        return null;
                     }
                 }
             }
+            return null;
         }
 
         /// <inheritdoc/>
@@ -227,7 +234,7 @@ namespace Nulah.HospitalHelper.Data
                 Id = Guid.Parse((string)reader[nameof(Bed.Id)]),
                 BedStatus = (BedStatus)Convert.ToInt32(reader[nameof(Bed.BedStatus)]),
                 Number = Convert.ToInt32(reader[nameof(Bed.Number)]),
-                PatientURN = reader[nameof(BedPatient.PatientURN)] != DBNull.Value 
+                PatientURN = reader[nameof(BedPatient.PatientURN)] != DBNull.Value
                     ? Convert.ToInt32(reader[nameof(BedPatient.PatientURN)])
                     : null
             };
