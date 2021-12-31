@@ -393,7 +393,6 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
-
         /// <summary>
         /// Returns the rowid of the last INSERT command for the given <paramref name="dbConnection"/>
         /// </summary>
