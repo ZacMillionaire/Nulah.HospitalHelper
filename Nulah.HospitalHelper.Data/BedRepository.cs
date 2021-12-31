@@ -19,11 +19,7 @@ namespace Nulah.HospitalHelper.Data
             _repository = sqliteDataRepository;
         }
 
-        /// <summary>
-        /// Returns all available beds in the database.
-        /// <para>Will always return a <see cref="List{Bed}"/> of <see cref="Bed"/></para>
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public List<Bed> GetBeds()
         {
             var beds = new List<Bed>();
@@ -51,12 +47,8 @@ namespace Nulah.HospitalHelper.Data
             return beds;
         }
 
-        /// <summary>
-        /// Returns a bed by the given <paramref name="bedId"/>, or <see cref="null"/> if no bed was found.
-        /// </summary>
-        /// <param name="bedId"></param>
-        /// <returns></returns>
-        public Bed? GetBedById(int bedId)
+        /// <inheritdoc/>
+        public Bed? GetBedByNumber(int bedNumber)
         {
             using (var conn = _repository.GetConnection())
             {
@@ -64,9 +56,9 @@ namespace Nulah.HospitalHelper.Data
 
                 var query = $"SELECT [{nameof(Bed.Number)}], [{nameof(Bed.Id)}], [{nameof(Bed.BedStatus)}]" +
                     $"FROM [{nameof(Bed)}s]" +
-                    $"WHERE [{nameof(Bed.Number)}] = $bedId";
+                    $"WHERE [{nameof(Bed.Number)}] = $bedNumber";
 
-                using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "bedId", bedId } }))
+                using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "bedNumber", bedNumber } }))
                 {
                     using (var reader = res.ExecuteReader())
                     {
@@ -91,49 +83,95 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                var query = $@"SELECT [{nameof(BedPatient.BedId)}]
+                var query = $@"SELECT [{nameof(BedPatient.BedNumber)}]
                     FROM [{nameof(BedPatient)}]
-                    WHERE [{nameof(BedPatient.PatientId)}] = $patientURN";
+                    WHERE [{nameof(BedPatient.PatientURN)}] = $patientURN";
 
                 using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientURN", patientURN } }))
                 {
-                    var bedId = res.ExecuteScalar() as long?;
+                    var bedNumber = res.ExecuteScalar() as long?;
 
-                    if (bedId != null)
+                    if (bedNumber != null)
                     {
-                        return GetBedById(Convert.ToInt32(bedId));
+                        return GetBedByNumber(Convert.ToInt32(bedNumber));
                     }
                 }
             }
             return null;
         }
 
-        public Bed? AddPatientToBed(int patientURN, int bedId)
+        /// <inheritdoc/>
+        public bool AddPatientToBed(int patientURN, int bedNumber)
         {
-            //using (var conn = _repository.GetConnection())
-            //{
-            //    conn.Open();
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
 
-            //    var query = $@"INSERT INTO [{nameof(BedPatient.BedId)}]
-            //        FROM [{nameof(BedPatient)}]
-            //        WHERE [{nameof(BedPatient.PatientId)}] = $patientURN";
+                // Return false if the bed is already occupied
+                if (GetBedStatus(bedNumber) != BedStatus.Free)
+                {
+                    return false;
+                }
 
-            //    using (var res = _repository.CreateCommand(query, conn, new Dictionary<string, object> { { "patientURN", patientURN } }))
-            //    {
-            //        var bedId = res.ExecuteScalar() as long?;
+                var bedPatientQuery = $@"INSERT OR IGNORE INTO [{nameof(BedPatient)}] (
+                        [{nameof(BedPatient.BedNumber)}], 
+                        [{nameof(BedPatient.PatientURN)}]
+                    )
+                    VALUES (
+                        $bedNumber,
+                        $patientId
+                    )";
 
-            //        if (bedId != null)
-            //        {
-            //            return GetBedById(Convert.ToInt32(bedId));
-            //        }
-            //    }
-            //}
+                var bedPatientQueryParams = new Dictionary<string, object>
+                {
+                    { "bedNumber",bedNumber },
+                    { "patientId", patientURN }
+                };
+
+                using (var res = _repository.CreateCommand(bedPatientQuery, conn, bedPatientQueryParams))
+                {
+                    var rowsInserted = res.ExecuteNonQuery();
+
+                    return rowsInserted == 1;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public bool RemovePatientFromBed(int patientURN, int bedNumber)
+        {
             throw new NotImplementedException();
         }
 
-        public Bed? RemovePatientFromBed(int patientURN, int bedId)
+        /// <inheritdoc/>
+        public BedStatus? GetBedStatus(int bedNumber)
         {
-            throw new NotImplementedException();
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var bedStatusQuery = $@"SELECT 
+                        [{nameof(Bed.BedStatus)}]
+                    FROM 
+                        [{nameof(Bed)}s]
+                    WHERE 
+                        [{nameof(Bed.Number)}] = $bedNumber";
+
+                var bedStatusQueryParams = new Dictionary<string, object>
+                {
+                    { "bedNumber",bedNumber }
+                };
+
+                using (var res = _repository.CreateCommand(bedStatusQuery, conn, bedStatusQueryParams))
+                {
+                    var bedStatus = res.ExecuteScalar() as long?;
+                    if (bedStatus != null)
+                    {
+                        return (BedStatus?)bedStatus;
+                    }
+                }
+            }
+            return null;
         }
 
         /// <summary>

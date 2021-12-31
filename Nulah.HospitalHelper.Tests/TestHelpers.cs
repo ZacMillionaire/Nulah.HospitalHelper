@@ -87,8 +87,8 @@ namespace Nulah.HospitalHelper.Tests
         private static void PopulatePatientsToBeds(SqliteConnection db)
         {
             var linkPatientsToBedsQueryText = $@"INSERT INTO [{nameof(BedPatient)}] (
-                [{nameof(BedPatient.BedId)}],
-                [{nameof(BedPatient.PatientId)}]
+                [{nameof(BedPatient.BedNumber)}],
+                [{nameof(BedPatient.PatientURN)}]
             ) VALUES
                 (1,83524),
                 (5,2),
@@ -185,11 +185,11 @@ namespace Nulah.HospitalHelper.Tests
                 )";
 
                 var bedPatientCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(BedPatient)}] (
-                    [{nameof(BedPatient.BedId)}] INTEGER NOT NULL,
-                    [{nameof(BedPatient.PatientId)}] INTEGER NOT NULL,
+                    [{nameof(BedPatient.BedNumber)}] INTEGER NOT NULL UNIQUE,
+                    [{nameof(BedPatient.PatientURN)}] INTEGER NOT NULL UNIQUE,
                     PRIMARY KEY (
-                        {nameof(BedPatient.BedId)},
-                        {nameof(BedPatient.PatientId)}
+                        {nameof(BedPatient.BedNumber)},
+                        {nameof(BedPatient.PatientURN)}
                     )
                 )";
 

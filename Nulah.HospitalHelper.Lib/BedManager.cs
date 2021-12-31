@@ -32,7 +32,7 @@ namespace Nulah.HospitalHelper.Lib
 
         public PublicBed? GetBedById(int bedId)
         {
-            var bed = _bedRepository.GetBedById(bedId);
+            var bed = _bedRepository.GetBedByNumber(bedId);
 
             if (bed == null)
             {

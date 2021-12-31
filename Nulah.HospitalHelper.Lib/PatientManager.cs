@@ -154,5 +154,16 @@ namespace Nulah.HospitalHelper.Lib
 
             return createdComment;
         }
+
+        public bool AddPatientToBed(int patientURN, int bedId)
+        {
+            return _bedRepository.AddPatientToBed(patientURN, bedId);
+        }
+
+        public bool RemovePatientFromBed(int patientURN, int bedId)
+        {
+            var bedUpdated = _bedRepository.RemovePatientFromBed(patientURN, bedId);
+            return false;
+        }
     }
 }
