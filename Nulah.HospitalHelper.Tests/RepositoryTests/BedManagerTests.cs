@@ -43,16 +43,19 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             Assert.AreEqual("Nausea, dizziness", bedForJohnDoe.Patient!.PresentingIssue);
             Assert.AreEqual("Discharged", bedForJohnDoe.LastComment);
             Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 10, 35, 0), tz).ToUniversalTime(), bedForJohnDoe.LastUpdatedUTC);
+            Assert.AreEqual("Kelly A.", bedForJohnDoe.Nurse);
 
             Assert.AreEqual("Lorna Smith", bedForLornaSmith.Patient!.DisplayName);
             Assert.AreEqual("Broken leg", bedForLornaSmith.Patient!.PresentingIssue);
             Assert.AreEqual("X-Ray waiting results", bedForLornaSmith.LastComment);
             Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 7, 30, 25), tz).ToUniversalTime(), bedForLornaSmith.LastUpdatedUTC);
+            Assert.AreEqual("Mary P.", bedForLornaSmith.Nurse);
 
             Assert.AreEqual("Diana May", bedForDianaMay.Patient!.DisplayName);
             Assert.AreEqual("High fever", bedForDianaMay.Patient!.PresentingIssue);
             Assert.AreEqual("Medication supplied", bedForDianaMay.LastComment);
             Assert.AreEqual(TestHelpers.CreateDateTimeForTimezone(new DateTime(2020, 2, 2, 9, 45, 25), tz).ToUniversalTime(), bedForDianaMay.LastUpdatedUTC);
+            Assert.AreEqual("Kelly A.", bedForDianaMay.Nurse);
         }
 
         [TestMethod]

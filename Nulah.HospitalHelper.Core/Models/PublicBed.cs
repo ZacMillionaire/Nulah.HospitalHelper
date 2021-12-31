@@ -12,6 +12,7 @@ namespace Nulah.HospitalHelper.Core.Models
         public int BedNumber { get; set; }
         public BedStatus BedStatus { get; set; }
         public PublicPatientDetails? Patient { get; set; }
+
         public string? LastComment
         {
             get
@@ -23,6 +24,19 @@ namespace Nulah.HospitalHelper.Core.Models
                 return null;
             }
         }
+
+        public string? Nurse
+        {
+            get
+            {
+                if (Patient != null && Patient.Comments.Count != 0)
+                {
+                    return Patient.Comments.Last().Nurse;
+                }
+                return null;
+            }
+        }
+
         public DateTime? LastUpdatedUTC
         {
             get
