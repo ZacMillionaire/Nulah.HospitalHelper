@@ -52,6 +52,11 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var patientManager = TestHelpers.GetPatientManager();
             var patientFullDetails = patientManager.GetPatientDetails(83524);
 
+            Assert.AreEqual("John", patientFullDetails!.DisplayFirstName);
+            Assert.AreEqual("Doe", patientFullDetails!.DisplayLastName);
+            Assert.AreEqual(Formatters.PersonNameToDisplayFormat("John", "Doe"), patientFullDetails!.DisplayName);
+            Assert.AreEqual("John Doe", patientFullDetails!.FullName);
+
             Assert.IsTrue(patientFullDetails!.Comments.Count == 4);
             Assert.IsTrue(patientFullDetails.Comments[0].Comment == "Admitted");
             Assert.IsTrue(patientFullDetails.Comments[1].Comment == "Temp checked");

@@ -86,6 +86,8 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
+                DisplayFirstName = patient.DisplayFirstName,
+                DisplayLastName= patient.DisplayLastName,
                 DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,
