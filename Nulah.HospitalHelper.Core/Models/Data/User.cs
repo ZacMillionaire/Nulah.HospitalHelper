@@ -9,7 +9,6 @@ namespace Nulah.HospitalHelper.Core.Models.Data
     public class User
     {
         public int Id { get; set; }
-        public int EmployeeId { get; set; }
         public string Salt { get; set; }
         public string PasswordHash { get; set; }
     }

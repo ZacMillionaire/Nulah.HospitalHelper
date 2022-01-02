@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Nulah.HospitalHelper.Core.Models.Data
 {
-    public class UserLoginHash
+    public class UserLoginToken
     {
         public int UserId { get; set; }
-        public string Loginhash { get; set; }
+        public string LoginToken { get; set; }
     }
 }
