@@ -119,7 +119,30 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             // Check that the DoB added for a date of birth in Brisbane matches the local time conversion from the patient manager
             Assert.AreEqual(DoB_Brisbane.ToShortTimeString(), newPatient.DateOfBirth.ToLocalTime().ToShortTimeString());
             Assert.AreEqual(DoB_Brisbane.ToShortDateString(), newPatient.DateOfBirth.ToLocalTime().ToShortDateString());
+        }
 
+
+        [TestMethod]
+        public void CreateNewPatient_WithNoLastName_ShouldReturn_NewPatient()
+        {
+            var patientManager = TestHelpers.GetPatientManager();
+
+            // Don't reuse the for new patient to ensure 2 separate calls produce the same date time
+            var DoB_Brisbane = TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.Utc);
+
+            var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", null, TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
+
+            // URN is high due to a higher number URN being created in test data.
+            // This is not an arbitrary number
+            Assert.AreEqual(83525, newPatient.URN);
+            Assert.AreEqual("Pascal Nulah", newPatient.FullName);
+            Assert.AreEqual("Pascal", newPatient.DisplayName);
+            Assert.AreEqual("Pascal", newPatient.DisplayFirstName);
+            Assert.IsNull(newPatient.DisplayLastName);
+
+            // Check that the DoB added for a date of birth in Brisbane matches the local time conversion from the patient manager
+            Assert.AreEqual(DoB_Brisbane.ToShortTimeString(), newPatient.DateOfBirth.ToLocalTime().ToShortTimeString());
+            Assert.AreEqual(DoB_Brisbane.ToShortDateString(), newPatient.DateOfBirth.ToLocalTime().ToShortDateString());
         }
 
         [TestMethod]

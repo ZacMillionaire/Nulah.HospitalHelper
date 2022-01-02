@@ -163,7 +163,7 @@ namespace Nulah.HospitalHelper.Data
                         res.ExecuteNonQuery();
                     }
 
-                    var commentInsertId = GetLastInsertId(conn, transaction);
+                    var commentInsertId = SqliteDbHelpers.GetLastInsertId(_repository, conn, transaction);
 
                     if (commentInsertId == null)
                     {
@@ -362,7 +362,7 @@ namespace Nulah.HospitalHelper.Data
                     var createPatientParameters = new Dictionary<string, object> {
                         { "patientId", Guid.NewGuid() },
                         { "displayFirstName", displayFirstName },
-                        { "displayLastName", displayLastName ?? "NULL" },
+                        { "displayLastName", displayLastName },
                         { "fullName", fullName },
                         { "dateOfBirthUTC", dateOfBirthUTC.Ticks },
                     };
@@ -373,7 +373,7 @@ namespace Nulah.HospitalHelper.Data
 
                         if (rowsCreated == 1)
                         {
-                            var patientInsertId = GetLastInsertId(conn, transaction);
+                            var patientInsertId = SqliteDbHelpers.GetLastInsertId(_repository, conn, transaction);
 
                             if (patientInsertId != null)
                             {
@@ -394,22 +394,6 @@ namespace Nulah.HospitalHelper.Data
         }
 
         /// <summary>
-        /// Returns the rowid of the last INSERT command for the given <paramref name="dbConnection"/>
-        /// </summary>
-        /// <param name="dbConnection"></param>
-        /// <returns></returns>
-        private int? GetLastInsertId(DbConnection dbConnection, DbTransaction? dbTransaction = null)
-        {
-            using (var res = _repository.CreateCommand("SELECT last_insert_rowid();", dbConnection, dbTransaction: dbTransaction))
-            {
-                var lastRowId = res.ExecuteScalar() as long?;
-                return lastRowId == null
-                    ? null
-                    : Convert.ToInt32(lastRowId);
-            }
-        }
-
-        /// <summary>
         /// Converts the row at <paramref name="reader"/> to a <see cref="Patient"/>
         /// </summary>
         /// <param name="reader"></param>
@@ -421,7 +405,9 @@ namespace Nulah.HospitalHelper.Data
                 Id = Guid.Parse((string)reader[nameof(Patient.Id)]),
                 URN = Convert.ToInt32(reader[nameof(Patient.URN)]),
                 DisplayFirstName = (string)reader[nameof(Patient.DisplayFirstName)],
-                DisplayLastName = (string)reader[nameof(Patient.DisplayLastName)],
+                DisplayLastName = reader[nameof(Patient.DisplayLastName)] != DBNull.Value
+                    ? (string)reader[nameof(Patient.DisplayLastName)]
+                    : null,
                 FullName = (string)reader[nameof(Patient.FullName)],
                 // DateTime is stored as a long from DateTime.UtcNow.Ticks
                 DateOfBirthUTC = new DateTime((long)reader[nameof(Patient.DateOfBirthUTC)]),

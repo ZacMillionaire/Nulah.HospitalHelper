@@ -10,5 +10,9 @@ namespace Nulah.HospitalHelper.Core.Models
     {
         public Guid Id { get; set; }
         public string DisplayName { get; set; }
+        public int EmployeeId { get; set; }
+        public string DisplayFirstName { get; set; }
+        public string? DisplayLastName { get; set; }
+        public string FullName { get; set; }
     }
 }
