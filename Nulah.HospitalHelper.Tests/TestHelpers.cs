@@ -287,6 +287,12 @@ namespace Nulah.HospitalHelper.Tests
             return new PatientManager(patientRepository, bedRepository);
         }
 
+        internal static EmployeeManager GetEmployeeManager()
+        {
+            var employeeRepository = new EmployeeRepository(_dataRepository);
+            return new EmployeeManager(employeeRepository);
+        }
+
         /// <summary>
         /// Returns a given UTC date time aligned to the given timezone (Kind will be UTC but the offset will correspond to the given timezone)
         /// </summary>
