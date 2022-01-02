@@ -21,7 +21,15 @@
 - Creating an employee has no uniqueness constraints as names are not a unique identifier despite best efforts in the world.
 	- Unless your birth name is a Guid in which case uh
 	- Basically multiple employees can exist with the same first, last and display names, just like in real life
+- Creating employees, beds and patients aren't specified, but it'd be odd for them to not exist, so those features have been added.
+- Not being logged in will redirect all requests to a login page, and unauthenticated API requests will be denied
 
+## Out of Scope
+
+- Role based authentication
+- A safe and secure authentication system
+- Permission management
+	- All employees can admit, discharge, create beds, patients or new employees
 
 ## Limitations
 
