@@ -111,6 +111,18 @@ namespace Nulah.HospitalHelper.Tests
 
             new SqliteCommand(employeesQueryText, db)
                 .ExecuteNonQuery();
+
+            var employeeUserQueryText = $@"INSERT INTO [{nameof(User)}s] (
+                    [{nameof(User.Id)}],
+                    [{nameof(User.Salt)}],
+                    [{nameof(User.PasswordHash)}]
+                ) VALUES
+                    (1, '2d29403ab6a17655d1141e0038cf95e4f86c6c71200028b9f4b5167795a75b78f2796a0e8d63f4da31415de8748c078e441110a7a8301f7704c2e711695f192a', '479541ed639b1fe5622d0a5523817e0ddf1ef8267f9b35b760e642f7f9f542fde117db57ee3f5babb9c7dabd43d0a966415a4b5cff5f86eafe7c123cbeb8d7e3'),
+(2, '3a04d83db5c11e9d9d478cf00d8aa786d1ffaf3098701ecede98b5fc5408df2ce0a34f6902db6b1544f88bcaba5633f12515c0fd2c3898813476107df9bea5bd', 'd5d1d036ab4e662fb0e5e48480faf7b530dc188c5a326626301b462d1591a2e2769f927710802e5012e44b29843cb6403cf4c1c22fdf5dec7a33b8fd8ddc009a')";
+
+            new SqliteCommand(employeeUserQueryText, db)
+                .ExecuteNonQuery();
+
         }
 
         private static void PopulateComments(SqliteConnection db)
@@ -224,11 +236,25 @@ namespace Nulah.HospitalHelper.Tests
                 )";
 
                 var patientHealthDetailsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientHealthDetail)}s] (
-                        [{nameof(PatientHealthDetail.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
-                        [{nameof(PatientHealthDetail.PatientId)}] INTEGER,
-                        [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL,
+                    [{nameof(PatientHealthDetail.Id)}] INTEGER PRIMARY KEY AUTOINCREMENT,
+                    [{nameof(PatientHealthDetail.PatientId)}] INTEGER,
+                    [{nameof(PatientHealthDetail.PresentingIssue)}] TEXT NOT NULL,
                     FOREIGN KEY({nameof(PatientHealthDetail.PatientId)}) REFERENCES [{nameof(Patient)}s]({nameof(Patient.URN)})
                 )";
+
+                var usersTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(User)}s] (
+                    [{nameof(User.Id)}] INTEGER PRIMARY KEY NOT NULL,
+                    [{nameof(User.Salt)}] TEXT NOT NULL,
+                    [{nameof(User.PasswordHash)}] TEXT NOT NULL,
+                    FOREIGN KEY({nameof(User.Id)}) REFERENCES [{nameof(Employee)}s]({nameof(Employee.EmployeeId)})
+                )";
+
+                var userLoginTokenTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(UserLoginToken)}] (
+                    [{nameof(UserLoginToken.UserId)}] INTEGER UNIQUE NOT NULL,
+                    [{nameof(UserLoginToken.LoginToken)}] TEXT NOT NULL,
+                    FOREIGN KEY({nameof(UserLoginToken.UserId)}) REFERENCES [{nameof(User)}s]({nameof(User.Id)})
+                )";
+
 
                 var createBedTable = new SqliteCommand(bedTableCommand, db);
                 var createPatientTable = new SqliteCommand(patientTableCommand, db);
@@ -237,14 +263,18 @@ namespace Nulah.HospitalHelper.Tests
                 var createCommentPatientEmployeeTable = new SqliteCommand(commentPatientEmployeeTableCommand, db);
                 var createEmployeeTable = new SqliteCommand(employeeTableCommand, db);
                 var createPatientHealthDetailsTable = new SqliteCommand(patientHealthDetailsTableCommand, db);
+                var createUserTable = new SqliteCommand(usersTableCommand, db);
+                var createUserLoginTokenTable = new SqliteCommand(userLoginTokenTableCommand, db);
 
-                createBedTable.ExecuteReader();
-                createPatientTable.ExecuteReader();
-                createBedPatientTable.ExecuteReader();
-                createCommentsTable.ExecuteReader();
-                createCommentPatientEmployeeTable.ExecuteReader();
-                createEmployeeTable.ExecuteReader();
-                createPatientHealthDetailsTable.ExecuteReader();
+                createBedTable.ExecuteNonQuery();
+                createPatientTable.ExecuteNonQuery();
+                createBedPatientTable.ExecuteNonQuery();
+                createCommentsTable.ExecuteNonQuery();
+                createCommentPatientEmployeeTable.ExecuteNonQuery();
+                createEmployeeTable.ExecuteNonQuery();
+                createPatientHealthDetailsTable.ExecuteNonQuery();
+                createUserTable.ExecuteNonQuery();
+                createUserLoginTokenTable.ExecuteNonQuery();
 
                 db.Close();
             }
@@ -291,6 +321,12 @@ namespace Nulah.HospitalHelper.Tests
         {
             var employeeRepository = new EmployeeRepository(_dataRepository);
             return new EmployeeManager(employeeRepository);
+        }
+
+        internal static UserManager GetUserManager()
+        {
+            var userRepository = new UserRepository(_dataRepository);
+            return new UserManager(userRepository);
         }
 
         /// <summary>
