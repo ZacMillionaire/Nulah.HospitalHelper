@@ -85,26 +85,30 @@ namespace Nulah.HospitalHelper.Data
                     { "employeeId", employeeId }
                 };
 
+
                 using (var res = _repository.CreateCommand(getSaltAndPasswordQuery, conn, getSaltAndPasswordParams))
                 {
                     using (var reader = res.ExecuteReader())
                     {
                         if (reader.HasRows == true)
                         {
-                            var storedSalt = (string)reader[nameof(User.Salt)];
-                            var storedPasswordHash = (string)reader[nameof(User.PasswordHash)];
-
-                            var userPasswordHash = HashPassword(storedSalt, password);
-
-                            if (storedPasswordHash != userPasswordHash)
+                            while (reader.Read())
                             {
-                                return null;
-                            }
+                                var storedSalt = (string)reader[nameof(User.Salt)];
+                                var storedPasswordHash = (string)reader[nameof(User.PasswordHash)];
 
-                            return CreateLoginToken(employeeId);
+                                var userPasswordHash = HashPassword(storedSalt, password);
+
+                                if (storedPasswordHash != userPasswordHash)
+                                {
+                                    return null;
+                                }
+                            }
                         }
                     }
                 }
+
+                return CreateLoginToken(employeeId);
             }
 
             return null;
@@ -113,43 +117,7 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public bool CheckUserLogin(int employeeId, string loginToken)
         {
-            if (EmployeeExistsById(employeeId) == false
-                || UserExistsById(employeeId) == false
-                || string.IsNullOrWhiteSpace(loginToken) == true)
-            {
-                return false;
-            }
-
-            using (var conn = _repository.GetConnection())
-            {
-                conn.Open();
-
-                var checkLoginQuery = $@"SELECT 1
-                    FROM
-                        [{nameof(UserLoginToken)}]
-                    WHERE
-                        [{nameof(UserLoginToken.UserId)}] = $employeeId
-                    AND
-                        [{nameof(UserLoginToken.LoginToken)}] = $loginToken";
-
-
-                var checkLoginParams = new Dictionary<string, object>
-                {
-                    { "employeeId", employeeId },
-                    { "loginToken", loginToken }
-                };
-
-                using (var res = _repository.CreateCommand(checkLoginQuery, conn, checkLoginParams))
-                {
-                    var rowsCreated = res.ExecuteScalar() as int?;
-
-                    if (rowsCreated == 1)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return false;
+            return CheckLoginToken(employeeId, loginToken);
         }
 
         /// <inheritdoc/>
@@ -387,7 +355,10 @@ namespace Nulah.HospitalHelper.Data
         /// <returns></returns>
         private bool CheckLoginToken(int employeeId, string loginToken)
         {
-            if (EmployeeExistsById(employeeId) == false)
+            if (EmployeeExistsById(employeeId) == false
+                || UserExistsById(employeeId) == false
+                || UserHasLoginToken(employeeId) == false
+                || string.IsNullOrWhiteSpace(loginToken) == true)
             {
                 return false;
             }
@@ -396,32 +367,28 @@ namespace Nulah.HospitalHelper.Data
             {
                 conn.Open();
 
-                var createUserLoginTokenQuery = $@"SELECT 1
+                var checkLoginQuery = $@"SELECT 1
                     FROM
-                        [{nameof(UserLoginToken)}] 
+                        [{nameof(UserLoginToken)}]
                     WHERE
-                        [{nameof(UserLoginToken.UserId)}] = $userId
+                        [{nameof(UserLoginToken.UserId)}] = $employeeId
                     AND
                         [{nameof(UserLoginToken.LoginToken)}] = $loginToken";
 
-                var createUserLoginTokenParams = new Dictionary<string, object>
+
+                var checkLoginParams = new Dictionary<string, object>
                 {
-                    { "userId", employeeId },
-                    { "loginToken", loginToken },
+                    { "employeeId", employeeId },
+                    { "loginToken", loginToken }
                 };
 
-                using (var res = _repository.CreateCommand(createUserLoginTokenQuery, conn, createUserLoginTokenParams))
+                using (var res = _repository.CreateCommand(checkLoginQuery, conn, checkLoginParams))
                 {
-                    var rowsCreated = res.ExecuteScalar() as int?;
+                    var rowsCreated = res.ExecuteScalar() as long?;
 
-                    //if (rowsCreated == 1)
-                    //{
-                    //    return loginToken;
-                    //}
+                    return rowsCreated != null && rowsCreated == 1;
                 }
             }
-
-            return false;
         }
     }
 }

@@ -46,5 +46,80 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.IsTrue(createdUser);
         }
+
+        [TestMethod]
+        public void LoginUser_1_WithCorrectPassword_ShouldReturn_True()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, "Bas1c_P@ssw0rd");
+
+            Assert.IsNotNull(userLoginToken);
+
+            var userLoggedIn = userManager.CheckUserLogin(1, userLoginToken);
+
+            Assert.IsTrue(userLoggedIn);
+        }
+
+        [TestMethod]
+        public void LoginUser_1_Twice_ShouldReturn_Null_On2ndLogin()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, "Bas1c_P@ssw0rd");
+
+            Assert.IsNotNull(userLoginToken);
+
+            userLoginToken = userManager.Login(1, "Bas1c_P@ssw0rd");
+
+            Assert.IsNull(userLoginToken);
+        }
+
+        [TestMethod]
+        public void LoginUser_1_WithBadPassword_ShouldReturn_Null()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, "Wrong password");
+
+            Assert.IsNull(userLoginToken);
+        }
+
+        [TestMethod]
+        public void LoginUser_1_WithNullPassword_ShouldReturn_Null()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, null);
+
+            Assert.IsNull(userLoginToken);
+        }
+
+        [TestMethod]
+        public void LoginUser_1_WithWhitespacePassword_ShouldReturn_Null()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, "                      ");
+
+            Assert.IsNull(userLoginToken);
+        }
+
+        [TestMethod]
+        public void LogoutUser_1_NotLoggedIn_ShouldReturn_False()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoggedOut = userManager.Logout(1);
+
+            Assert.IsFalse(userLoggedOut);
+        }
+
+        [TestMethod]
+        public void LogoutUser_1_LoggedIn_ShouldReturn_True()
+        {
+            var userManager = TestHelpers.GetUserManager();
+            var userLoginToken = userManager.Login(1, "Bas1c_P@ssw0rd");
+
+            Assert.IsNotNull(userLoginToken);
+
+            var userLoggedOut = userManager.Logout(1);
+
+            Assert.IsTrue(userLoggedOut);
+        }
     }
 }
