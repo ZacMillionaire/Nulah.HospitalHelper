@@ -174,7 +174,6 @@ namespace Nulah.HospitalHelper.Tests
 
         private static void InitialiseDatabase(SqliteDataRepository dataRepository)
         {
-
             ClearDatabase(dataRepository);
 
             using (var db = (SqliteConnection)dataRepository.GetConnection())
