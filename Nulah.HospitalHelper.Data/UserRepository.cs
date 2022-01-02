@@ -21,7 +21,9 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public bool CreateUser(int employeeId, string password)
         {
-            if (EmployeeExistsById(employeeId) == false || UserExistsById(employeeId) == true || string.IsNullOrWhiteSpace(password) == true)
+            if (EmployeeExistsById(employeeId) == false
+                || UserExistsById(employeeId) == true
+                || string.IsNullOrWhiteSpace(password) == true)
             {
                 return false;
             }
@@ -58,7 +60,10 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public string? Login(int employeeId, string password)
         {
-            if (EmployeeExistsById(employeeId) == false || UserExistsById(employeeId) == false || string.IsNullOrWhiteSpace(password) == true)
+            if (EmployeeExistsById(employeeId) == false
+                || UserExistsById(employeeId) == false
+                || UserHasLoginToken(employeeId) == true
+                || string.IsNullOrWhiteSpace(password) == true)
             {
                 return null;
             }
@@ -108,7 +113,9 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public bool CheckUserLogin(int employeeId, string loginToken)
         {
-            if (EmployeeExistsById(employeeId) == false || UserExistsById(employeeId) == false || string.IsNullOrWhiteSpace(loginToken) == true)
+            if (EmployeeExistsById(employeeId) == false
+                || UserExistsById(employeeId) == false
+                || string.IsNullOrWhiteSpace(loginToken) == true)
             {
                 return false;
             }
@@ -148,7 +155,9 @@ namespace Nulah.HospitalHelper.Data
         /// <inheritdoc/>
         public bool Logout(int employeeId)
         {
-            if (EmployeeExistsById(employeeId) == false || UserExistsById(employeeId) == false)
+            if (EmployeeExistsById(employeeId) == false
+                || UserExistsById(employeeId) == false
+                || UserHasLoginToken(employeeId) == false)
             {
                 return false;
             }
@@ -240,6 +249,37 @@ namespace Nulah.HospitalHelper.Data
                     var userExists = res.ExecuteScalar() as long?;
 
                     return userExists != null && userExists == 1;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the given userId has a login token associated to it
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        private bool UserHasLoginToken(int userId)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var userLoginTokenExistsQuery = $@"SELECT 1
+                    FROM
+                        [{nameof(UserLoginToken)}]
+                    WHERE
+                        [{nameof(UserLoginToken.UserId)}] = $userId";
+
+                var userLoginTokenParams = new Dictionary<string, object>
+                {
+                    { "userId", userId }
+                };
+
+                using (var res = _repository.CreateCommand(userLoginTokenExistsQuery, conn, userLoginTokenParams))
+                {
+                    var userLoginTokenExists = res.ExecuteScalar() as long?;
+
+                    return userLoginTokenExists != null && userLoginTokenExists == 1;
                 }
             }
         }
