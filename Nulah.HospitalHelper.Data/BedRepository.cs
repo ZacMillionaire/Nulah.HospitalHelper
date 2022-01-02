@@ -222,6 +222,38 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public Bed? CreateBed()
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var bedStatusQuery = $@"INSERT INTO [{nameof(Bed)}s] (
+                        [{nameof(Bed.Id)}],
+                        [{nameof(Bed.BedStatus)}]
+                    ) VALUES (
+                        '{Guid.NewGuid()}',
+                        {(int)BedStatus.Free}
+                    )";
+
+                using (var res = _repository.CreateCommand(bedStatusQuery, conn))
+                {
+                    var bedCreated = res.ExecuteNonQuery();
+                    if (bedCreated == 1)
+                    {
+                        var createdBed = SqliteDbHelpers.GetLastInsertId(_repository, conn);
+
+                        if (createdBed != null)
+                        {
+                            return GetBedByNumber((int)createdBed);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// Converts the current row in the given reader to a <see cref="Bed"/> object
         /// </summary>

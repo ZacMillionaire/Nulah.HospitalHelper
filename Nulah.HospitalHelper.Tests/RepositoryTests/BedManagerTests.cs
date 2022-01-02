@@ -97,5 +97,18 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.IsTrue(bed == null);
         }
+
+        [TestMethod]
+        public void CreateNewBed_ShouldReturn_NewBed()
+        {
+            var bedManager = TestHelpers.GetBedManager();
+            var bed = bedManager.CreateBed();
+
+            Assert.IsNotNull(bed);
+
+            var beds = bedManager.GetBeds();
+
+            Assert.AreEqual(9, beds.Count);
+        }
     }
 }
