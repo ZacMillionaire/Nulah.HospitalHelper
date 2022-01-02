@@ -48,5 +48,10 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="bedNumber"></param>
         /// <returns></returns>
         BedStatus? GetBedStatus(int bedNumber);
+        /// <summary>
+        /// Creates a new <see cref="BedStatus.Free"/> bed
+        /// </summary>
+        /// <returns></returns>
+        Bed? CreateBed();
     }
 }

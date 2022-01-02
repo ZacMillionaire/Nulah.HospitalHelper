@@ -62,6 +62,27 @@ namespace Nulah.HospitalHelper.Lib
             };
         }
 
+        /// <summary>
+        /// Creates a new bed in a <see cref="BedStatus.Free"/> state
+        /// </summary>
+        /// <returns></returns>
+        public PublicBed? CreateBed()
+        {
+            var bed = _bedRepository.CreateBed();
+
+            if (bed == null)
+            {
+                return null;
+            }
+
+            return new PublicBed
+            {
+                BedNumber = bed.Number,
+                Id = bed.Id,
+                BedStatus = bed.BedStatus
+            };
+        }
+
         private PublicPatientDetails? CreatePublicPatientDetails(int? patientURN)
         {
             if (patientURN == null)
