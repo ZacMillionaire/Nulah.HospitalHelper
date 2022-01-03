@@ -34,8 +34,11 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = x.Id,
                 DateOfBirth = x.DateOfBirthUTC,
-                DisplayName = $"{x.DisplayFirstName} {x.DisplayLastName}",
-                URN = x.URN
+                DisplayName = Formatters.PersonNameToDisplayFormat(x.DisplayFirstName, x.DisplayLastName),
+                URN = x.URN,
+                FullName = x.FullName,
+                DisplayFirstName = x.DisplayFirstName,
+                DisplayLastName = x.DisplayLastName,
             })
             .ToList();
         }
@@ -87,7 +90,7 @@ namespace Nulah.HospitalHelper.Lib
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
                 DisplayFirstName = patient.DisplayFirstName,
-                DisplayLastName= patient.DisplayLastName,
+                DisplayLastName = patient.DisplayLastName,
                 DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,

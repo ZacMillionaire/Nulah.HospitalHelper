@@ -27,6 +27,10 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.IsTrue(patients.Count > 0);
             Assert.IsTrue(patients.Count == 3);
+            Assert.AreEqual("Lorna", patients[0].DisplayFirstName);
+            Assert.AreEqual("Smith", patients[0].DisplayLastName);
+            Assert.AreEqual("Lorna Smith", patients[0].FullName);
+            Assert.AreEqual("Lorna Smith", patients[0].DisplayName);
         }
 
         [TestMethod]
