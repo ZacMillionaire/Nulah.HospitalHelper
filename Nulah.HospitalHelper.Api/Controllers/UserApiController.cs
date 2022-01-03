@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nulah.HospitalHelper.Api.Models;
+using Nulah.HospitalHelper.Api.Models.Users;
 using Nulah.HospitalHelper.Lib;
 using System.Net;
 
