@@ -151,7 +151,12 @@ namespace Nulah.HospitalHelper.Data
                 {
                     var rowsInserted = res.ExecuteNonQuery();
 
-                    return rowsInserted == 1;
+                    if (rowsInserted == 1)
+                    {
+                        return SetBedStatus(bedNumber, BedStatus.InUse);
+                    }
+
+                    return false;
                 }
             }
         }
@@ -186,7 +191,12 @@ namespace Nulah.HospitalHelper.Data
                 {
                     var rowsInserted = res.ExecuteNonQuery();
 
-                    return rowsInserted == 1;
+                    if (rowsInserted == 1)
+                    {
+                        return SetBedStatus(bedNumber, BedStatus.Free);
+                    }
+
+                    return false;
                 }
             }
         }
@@ -252,6 +262,33 @@ namespace Nulah.HospitalHelper.Data
                 }
             }
             return null;
+        }
+
+        private bool SetBedStatus(int bedNumber, BedStatus newStatus)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+                var updateBedStatusQuery = @$"UPDATE 
+                    [{nameof(Bed)}s]
+                SET 
+                    [{nameof(Bed.BedStatus)}] = $newStatus
+                WHERE
+                    [{nameof(Bed.Number)}] = $bedNumber";
+
+                var updateBedStatusParams = new Dictionary<string, object>
+                {
+                    { "bedNumber", bedNumber },
+                    { "newStatus", (int)newStatus },
+                };
+
+                using (var res = _repository.CreateCommand(updateBedStatusQuery, conn, updateBedStatusParams))
+                {
+                    var rowsUpdated = res.ExecuteNonQuery();
+
+                    return rowsUpdated == 1;
+                }
+            }
         }
 
         /// <summary>

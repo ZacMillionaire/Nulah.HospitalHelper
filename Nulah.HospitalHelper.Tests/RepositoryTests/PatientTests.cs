@@ -153,12 +153,17 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         public void AddPatient_83525_ToBed_2_ShouldReturn_True()
         {
             var patientManager = TestHelpers.GetPatientManager();
+            var bedManager = TestHelpers.GetBedManager();
 
             var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
             var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 2);
 
             Assert.IsTrue(addToBedResult);
+
+            var bed = bedManager.GetBedById(2);
+
+            Assert.AreEqual(BedStatus.InUse, bed!.BedStatus);
         }
 
         [TestMethod]
@@ -209,10 +214,16 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         public void RemovePatient_83524_FromBed_1_ShouldReturn_True()
         {
             var patientManager = TestHelpers.GetPatientManager();
+            var bedManager = TestHelpers.GetBedManager();
 
             var removeFromBedResult = patientManager.RemovePatientFromBed(83524, 1);
 
             Assert.IsTrue(removeFromBedResult);
+
+            var bed = bedManager.GetBedById(1);
+
+            Assert.AreEqual(BedStatus.Free, bed!.BedStatus);
+
         }
 
         [TestMethod]
