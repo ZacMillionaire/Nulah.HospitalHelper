@@ -22,14 +22,27 @@ namespace Nulah.HospitalHelper.Api.Controllers
         [HttpPost]
         [Route("New")]
         [SwaggerResponse((int)HttpStatusCode.OK, "The newly created employee", typeof(EmployeeApiResponse), MediaTypeNames.Application.Json)]
-        [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
-        public async Task<JsonResult> CreateEmployee(string fullName, string displayFirstName, string? displayLastName = null)
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        public async Task<JsonResult> CreateEmployee([FromBody] CreateEmployeeRequest createEmployeeRequest)
         {
             return await Task.Run(() =>
             {
                 try
                 {
-                    var newEmployee = _employeeManager.CreateEmployee(fullName, displayFirstName, displayLastName);
+                    if (string.IsNullOrWhiteSpace(createEmployeeRequest.fullName)
+                        || string.IsNullOrWhiteSpace(createEmployeeRequest.displayFirstName))
+                    {
+
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                        return ToJsonResult(new ErrorApiResponse
+                        {
+                            Message = "A required property was empty"
+                        });
+                    }
+
+                    var newEmployee = _employeeManager.CreateEmployee(createEmployeeRequest.fullName, createEmployeeRequest.displayFirstName, createEmployeeRequest.displayLastName);
 
                     if (newEmployee == null)
                     {
@@ -61,11 +74,12 @@ namespace Nulah.HospitalHelper.Api.Controllers
             });
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("{employeeId}")]
         [SwaggerResponse((int)HttpStatusCode.OK, "The found employee", typeof(EmployeeApiResponse), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, "Employee not found", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
-        public async Task<JsonResult> GetEmployee(int employeeId)
+        public async Task<JsonResult> GetEmployee([FromRoute] int employeeId)
         {
             return await Task.Run(() =>
             {
@@ -76,7 +90,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
                     if (employee == null)
                     {
 
-                        Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        Response.StatusCode = (int)HttpStatusCode.NotFound;
 
                         return ToJsonResult(new ErrorApiResponse
                         {
