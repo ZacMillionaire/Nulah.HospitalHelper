@@ -61,5 +61,18 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             Assert.AreEqual("Pascal", createdEmployee.DisplayName);
         }
+
+        [TestMethod]
+        public void GetEmployeeById_1_ShouldReturn_KellyAnderson()
+        {
+            var employeeManager = TestHelpers.GetEmployeeManager();
+            var employee = employeeManager.GetEmployee(1);
+
+            Assert.IsNotNull(employee);
+            Assert.AreEqual("Kelly", employee.DisplayFirstName);
+            Assert.AreEqual("A.", employee.DisplayLastName);
+            Assert.AreEqual("Kelly A.", employee.DisplayName);
+            Assert.AreEqual("Kelly Anderson", employee.FullName);
+        }
     }
 }

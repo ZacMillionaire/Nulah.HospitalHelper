@@ -331,6 +331,39 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public PatientHealthDetail? SetHealthDetails(int patientURN, string presentingIssue)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"INSERT OR REPLACE INTO [{nameof(PatientHealthDetail)}s] (
+                        [{nameof(PatientHealthDetail.PatientId)}],
+                        [{nameof(PatientHealthDetail.PresentingIssue)}]
+                    ) VALUES (
+                        $patientURN, $presentingIssue
+                    )";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "patientURN", patientURN },
+                    { "presentingIssue", presentingIssue }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteNonQuery();
+
+                    if (rowsActioned == 1)
+                    {
+                        return GetPatientHealthDetails(patientURN);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();

@@ -8,12 +8,12 @@ namespace Nulah.HospitalHelper.Api.Controllers
     [ApiController]
     [Route("Beds")]
     [LazyApiAuthorise]
-    public class BedController : ControllerBase
+    public class BedApiController : ControllerBase
     {
 
         private readonly BedManager _bedManager;
 
-        public BedController(BedManager bedRepository)
+        public BedApiController(BedManager bedRepository)
         {
             _bedManager = bedRepository;
         }

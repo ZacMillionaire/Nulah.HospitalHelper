@@ -34,8 +34,11 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = x.Id,
                 DateOfBirth = x.DateOfBirthUTC,
-                DisplayName = $"{x.DisplayFirstName} {x.DisplayLastName}",
-                URN = x.URN
+                DisplayName = Formatters.PersonNameToDisplayFormat(x.DisplayFirstName, x.DisplayLastName),
+                URN = x.URN,
+                FullName = x.FullName,
+                DisplayFirstName = x.DisplayFirstName,
+                DisplayLastName = x.DisplayLastName,
             })
             .ToList();
         }
@@ -87,7 +90,7 @@ namespace Nulah.HospitalHelper.Lib
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
                 DisplayFirstName = patient.DisplayFirstName,
-                DisplayLastName= patient.DisplayLastName,
+                DisplayLastName = patient.DisplayLastName,
                 DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,
@@ -107,7 +110,7 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
-        /// Creates a new patient
+        /// Creates a new patient and returns full details on success
         /// </summary>
         /// <param name="fullName"></param>
         /// <param name="displayFirstName"></param>
@@ -163,7 +166,7 @@ namespace Nulah.HospitalHelper.Lib
         /// <param name="patientURN"></param>
         /// <param name="bedNumber"></param>
         /// <returns></returns>
-        public bool AddPatientToBed(int patientURN, int bedNumber)
+        public bool AddPatientToBed(int patientURN, int bedNumber, string presentingIssue)
         {
             var patient = _patientRepository.GetPatient(patientURN);
 
@@ -171,6 +174,8 @@ namespace Nulah.HospitalHelper.Lib
             {
                 return false;
             }
+
+            var healthDetails = _patientRepository.SetHealthDetails(patientURN, presentingIssue);
 
             return _bedRepository.AddPatientToBed(patientURN, bedNumber);
         }

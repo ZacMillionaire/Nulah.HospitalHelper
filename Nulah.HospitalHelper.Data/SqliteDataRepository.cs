@@ -49,15 +49,16 @@ namespace Nulah.HospitalHelper.Data
         /// </summary>
         public void InitialiseDatabase(bool forceCreation = false)
         {
-            // If the database has already been initialised once, and we aren't forcing a creation,
-            // do nothing.
-            if (File.Exists(_connectionString) == true && forceCreation == false)
-            {
-                return;
-            }
 
             using (var db = (SqliteConnection)GetConnection())
             {
+                // If the database has already been initialised once, and we aren't forcing a creation,
+                // do nothing.
+                if (File.Exists(db.DataSource) == true && forceCreation == false)
+                {
+                    return;
+                }
+
                 db.Open();
 
                 // If true, clear the entire database for initial data
@@ -168,8 +169,33 @@ namespace Nulah.HospitalHelper.Data
                 createUserTable.ExecuteNonQuery();
                 createUserLoginTokenTable.ExecuteNonQuery();
 
+                CreateDefaultEmployee(db);
+
                 db.Close();
             }
+        }
+
+        private void CreateDefaultEmployee(SqliteConnection db)
+        {
+            var employeesQueryText = $@"INSERT INTO [{nameof(Employee)}s] (
+                    [{nameof(Employee.Id)}],
+                    [{nameof(Employee.DisplayFirstName)}],
+                    [{nameof(Employee.DisplayLastName)}],
+                    [{nameof(Employee.FullName)}]
+                ) VALUES
+                    ('{Guid.NewGuid()}','Pascal', 'N.', 'Pascal Nulah')";
+
+            new SqliteCommand(employeesQueryText, db)
+                .ExecuteNonQuery();
+
+            var employeeUserQueryText = $@"INSERT INTO [{nameof(User)}s] (
+                    [{nameof(User.Id)}],
+                    [{nameof(User.Salt)}],
+                    [{nameof(User.PasswordHash)}]
+                ) VALUES
+                    (1, '2d29403ab6a17655d1141e0038cf95e4f86c6c71200028b9f4b5167795a75b78f2796a0e8d63f4da31415de8748c078e441110a7a8301f7704c2e711695f192a', '479541ed639b1fe5622d0a5523817e0ddf1ef8267f9b35b760e642f7f9f542fde117db57ee3f5babb9c7dabd43d0a966415a4b5cff5f86eafe7c123cbeb8d7e3')";
+            new SqliteCommand(employeeUserQueryText, db)
+                .ExecuteNonQuery();
         }
 #endif
 
