@@ -7,6 +7,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
     [Route("Beds")]
+    [LazyApiAuthorise]
     public class BedController : ControllerBase
     {
 
@@ -17,10 +18,24 @@ namespace Nulah.HospitalHelper.Api.Controllers
             _bedManager = bedRepository;
         }
 
-        [HttpGet(Name = "./")]
+        [HttpGet]
         public IEnumerable<PublicBed> GetBeds()
         {
             return _bedManager.GetBeds();
+        }
+
+        [HttpGet]
+        [Route("{bedNumber}")]
+        public PublicBed? GetBed(int bedNumber)
+        {
+            return _bedManager.GetBedById(bedNumber);
+        }
+
+        [HttpPost]
+        [Route("New")]
+        public PublicBed? CreateBed()
+        {
+            return _bedManager.CreateBed();
         }
     }
 }
