@@ -166,7 +166,7 @@ namespace Nulah.HospitalHelper.Lib
         /// <param name="patientURN"></param>
         /// <param name="bedNumber"></param>
         /// <returns></returns>
-        public bool AddPatientToBed(int patientURN, int bedNumber)
+        public bool AddPatientToBed(int patientURN, int bedNumber, string presentingIssue)
         {
             var patient = _patientRepository.GetPatient(patientURN);
 
@@ -174,6 +174,8 @@ namespace Nulah.HospitalHelper.Lib
             {
                 return false;
             }
+
+            var healthDetails = _patientRepository.SetHealthDetails(patientURN, presentingIssue);
 
             return _bedRepository.AddPatientToBed(patientURN, bedNumber);
         }

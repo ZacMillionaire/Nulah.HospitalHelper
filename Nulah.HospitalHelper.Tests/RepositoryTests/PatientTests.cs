@@ -157,13 +157,14 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
-            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 2);
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 2, "Sprained Ankle");
 
             Assert.IsTrue(addToBedResult);
 
             var bed = bedManager.GetBedById(2);
 
             Assert.AreEqual(BedStatus.InUse, bed!.BedStatus);
+            Assert.AreEqual("Sprained Ankle", bed!.Patient!.PresentingIssue);
         }
 
         [TestMethod]
@@ -173,7 +174,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
-            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 1);
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 1, "Sprained Ankle");
 
             Assert.IsFalse(addToBedResult);
         }
@@ -185,7 +186,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
 
             var newPatient = patientManager.CreateNewPatient("Pascal Nulah", "Pascal", "Nulah", TestHelpers.CreateDateTimeForTimezone(new DateTime(1989, 10, 2, 20, 0, 0), TimeZoneInfo.GetSystemTimeZones().First(x => x.StandardName == "E. Australia Standard Time")));
 
-            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 100);
+            var addToBedResult = patientManager.AddPatientToBed(newPatient.URN, 100, "Sprained Ankle");
 
             Assert.IsFalse(addToBedResult);
         }
@@ -195,17 +196,17 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         {
             var patientManager = TestHelpers.GetPatientManager();
 
-            var addToBedResult = patientManager.AddPatientToBed(83524, 2);
+            var addToBedResult = patientManager.AddPatientToBed(83524, 2, "Sprained Ankle");
 
             Assert.IsFalse(addToBedResult);
         }
 
         [TestMethod]
-        public void PatientThatDoesNotExist_9999_ToBed_2_ShouldReturn_False()
+        public void AddPatientThatDoesNotExist_9999_ToBed_2_ShouldReturn_False()
         {
             var patientManager = TestHelpers.GetPatientManager();
 
-            var addToBedResult = patientManager.AddPatientToBed(9999, 2);
+            var addToBedResult = patientManager.AddPatientToBed(9999, 2, "Sprained Ankle");
 
             Assert.IsFalse(addToBedResult);
         }
@@ -223,7 +224,6 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var bed = bedManager.GetBedById(1);
 
             Assert.AreEqual(BedStatus.Free, bed!.BedStatus);
-
         }
 
         [TestMethod]
@@ -251,7 +251,7 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
         {
             var patientManager = TestHelpers.GetPatientManager();
 
-            var addToBedResult = patientManager.AddPatientToBed(30000, 2);
+            var addToBedResult = patientManager.RemovePatientFromBed(30000, 2);
 
             Assert.IsFalse(addToBedResult);
         }

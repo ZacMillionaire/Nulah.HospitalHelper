@@ -84,5 +84,12 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="dateOfBirthUTC"></param>
         /// <returns></returns>
         Patient? CreatePatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC);
+        /// <summary>
+        /// Sets a patients health details to the given <paramref name="presentingIssue"/> by <paramref name="patientURN"/>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="presentingIssue"></param>
+        /// <returns></returns>
+        PatientHealthDetail? SetHealthDetails(int patientURN, string presentingIssue);
     }
 }
