@@ -27,8 +27,7 @@ namespace Nulah.HospitalHelper.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-            app.MapControllers()
-                .RequireAuthorization();
+            app.MapControllers();
 
             app.Run();
         }
