@@ -238,7 +238,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
 
         [HttpPost]
         [Route("{patientURN}/Admit")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Patient was added to bed", typeof(bool), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Patient was added to bed", typeof(bool), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
         public async Task<JsonResult> AddPatientToBedByEmployee([FromRoute] int patientURN, int bedNumber, int employeeId)
         {
@@ -279,7 +279,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
 
         [HttpPost]
         [Route("{patientURN}/Discharge")]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Patient was removed from bed", typeof(bool), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Patient was removed from bed", typeof(bool), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
         public async Task<JsonResult> RemovePatientFromBedByEmployee([FromRoute] int patientURN, int bedNumber, int employeeId)
         {
