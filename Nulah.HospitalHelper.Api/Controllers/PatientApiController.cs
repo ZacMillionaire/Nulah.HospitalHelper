@@ -89,6 +89,45 @@ namespace Nulah.HospitalHelper.Api.Controllers
             });
         }
 
+        [HttpGet]
+        [Route("{patientURN}/Details")]
+        [SwaggerResponse((int)HttpStatusCode.OK, "Full patient details", typeof(PatientApiResponse), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Patient does not exist", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception is thrown", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        public async Task<JsonResult> GetPatientDetails([FromRoute] int patientURN)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var patient = _patientManager.GetPatientDetails(patientURN);
+
+                    if (patient == null)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                        return ToJsonResult(new ErrorApiResponse
+                        {
+                            Message = "Patient does not exist"
+                        });
+                    }
+
+                    return ToJsonResult(new PatientApiResponse
+                    {
+                        Patient = patient
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return ToJsonResult(new ErrorApiResponse
+                    {
+                        Message = ex.Message,
+                    });
+                }
+            });
+        }
+
         [HttpPost]
         [Route("New")]
         [SwaggerResponse((int)HttpStatusCode.OK, "The created patient", typeof(PatientApiResponse), MediaTypeNames.Application.Json)]
@@ -197,13 +236,86 @@ namespace Nulah.HospitalHelper.Api.Controllers
         }
 
 
-        /*
-    public bool AddPatientToBed(int patientId, int bedNumber)
-    {
+        [HttpPost]
+        [Route("{patientURN}/Admit")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Patient was added to bed", typeof(bool), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        public async Task<JsonResult> AddPatientToBedByEmployee([FromRoute] int patientURN, int bedNumber, int employeeId)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var patientAddedToBed = _patientManager.AddPatientToBed(patientURN, bedNumber);
 
-        return _patientManager.AddPatientToBed(patientId, bedNumber);
-    }
-        */
+                    if (patientAddedToBed == true)
+                    {
+                        // Create a comment for the patient to indicate they were admitted
+                        var admittedComment = _patientManager.AddCommentToPatient("Admitted", patientURN, employeeId);
+
+                        if (admittedComment == null)
+                        {
+                            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            return ToJsonResult(new ErrorApiResponse
+                            {
+                                Message = "Failed to create activity comment to patient",
+                            });
+                        }
+                    }
+
+                    return ToJsonResult(patientAddedToBed);
+                }
+                catch (Exception ex)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return ToJsonResult(new ErrorApiResponse
+                    {
+                        Message = ex.Message,
+                    });
+                }
+            });
+        }
+
+
+        [HttpPost]
+        [Route("{patientURN}/Discharge")]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, "Patient was removed from bed", typeof(bool), MediaTypeNames.Application.Json)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any error occurs", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
+        public async Task<JsonResult> RemovePatientFromBedByEmployee([FromRoute] int patientURN, int bedNumber, int employeeId)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var patientRemovedFromBed = _patientManager.RemovePatientFromBed(patientURN, bedNumber);
+
+                    if (patientRemovedFromBed == true)
+                    {
+                        // Create a comment for the patient to indicate they were discharged
+                        var admittedComment = _patientManager.AddCommentToPatient("Discharged", patientURN, employeeId);
+
+                        if (admittedComment == null)
+                        {
+                            Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            return ToJsonResult(new ErrorApiResponse
+                            {
+                                Message = "Failed to create activity comment to patient",
+                            });
+                        }
+                    }
+
+                    return ToJsonResult(patientRemovedFromBed);
+                }
+                catch (Exception ex)
+                {
+                    Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    return ToJsonResult(new ErrorApiResponse
+                    {
+                        Message = ex.Message,
+                    });
+                }
+            });
+        }
 
         private JsonResult ToJsonResult(object payload)
         {
