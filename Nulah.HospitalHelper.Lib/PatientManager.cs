@@ -110,7 +110,7 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
-        /// Creates a new patient
+        /// Creates a new patient and returns full details on success
         /// </summary>
         /// <param name="fullName"></param>
         /// <param name="displayFirstName"></param>
