@@ -117,6 +117,51 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return false;
         }
 
+
+        /// <summary>
+        /// Discharges the patient by <paramref name="patientURN"/> from the given bed by <paramref name="bedNumber"/>, and adds a discharged comment by the given <paramref name="employeeId"/>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <param name="employeeId"></param>
+        /// <returns>True on success, false if any requirements don't return a resource, or other error</returns>
+        public bool DischargePatientFromBed(int patientURN, int bedNumber, int employeeId)
+        {
+            var bed = _bedManager.GetBedById(bedNumber);
+
+            if (bed == null)
+            {
+                return false;
+            }
+            else if (bed.BedStatus != BedStatus.InUse)
+            {
+                return false;
+            }
+
+            var employee = _employeeManager.GetEmployee(employeeId);
+
+            if (employee == null)
+            {
+                return false;
+
+            }
+
+            var patientAddedToBed = _patientManager.RemovePatientFromBed(patientURN, bedNumber);
+
+            if (patientAddedToBed == true)
+            {
+                // Create a comment for the patient to indicate they were discharged
+                var dischargedComment = _patientManager.AddCommentToPatient("Discharged", patientURN, employeeId);
+
+                if (dischargedComment != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "All patients in the system", typeof(PatientListApiResponse), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception is thrown", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]

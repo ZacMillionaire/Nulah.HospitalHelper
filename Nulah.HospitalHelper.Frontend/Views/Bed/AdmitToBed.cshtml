@@ -11,8 +11,8 @@ else
 	@if (ViewBag.Error != null)
 	{
 		<div>
-		<h1>Error</h1>
-		<h2>@((string)ViewBag.Error)</h2>
+			<h1>Error</h1>
+			<h2>@((string)ViewBag.Error)</h2>
 		</div>
 	}
 
@@ -52,5 +52,11 @@ else
 	else
 	{
 		<h2>Bed is already occupied</h2>
+		<form asp-controller="Bed" asp-action="DischargeFromBed" method="post">
+			<input value="@Model.Bed.BedNumber" hidden name=@(nameof(DischargePatientFromBedFormData.BedNumber)) />
+			<input value="@Model.Bed.Patient!.URN" hidden name=@(nameof(DischargePatientFromBedFormData.PatientURN)) />
+			<input value="@User.Claims.First(x => x.Type == "EmployeeId").Value" name=@(nameof(DischargePatientFromBedFormData.EmployeeId)) hidden />
+			<button type="submit">Discharge Patient</button>
+		</form>
 	}
 }

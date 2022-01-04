@@ -80,13 +80,8 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
                 TempData["Error"] = "An error occurred when adding patient to bed";
                 return RedirectToAction(nameof(BedController.AdmitToBed), new { bedNumber = formData.BedNumber });
             }
-            //var viewModel = new AdmitToBedViewModel
-            //{
-            //    Bed = _bedApi.GetBed(bedNumber),
-            //    Patients = _patientApi.GetPatientList()
-            //};
 
-            return RedirectToAction();
+            return RedirectToAction(nameof(BedController.BedDetails), new { bedNumber = formData.BedNumber });
         }
 
         [HttpGet]
@@ -103,7 +98,7 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
 
         [HttpGet]
         [Route("{BedNumber}/Discharge")]
-        public IActionResult DiscargeFromBed([FromRoute] int bedNumber)
+        public IActionResult DischargeFromBed([FromRoute] int bedNumber)
         {
             var viewModel = new DischargeFromBedViewModel
             {
@@ -111,6 +106,30 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
             };
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        [Route("{BedNumber}/Discharge")]
+        public IActionResult DischargePatientFromBed([FromForm] DischargePatientFromBedFormData formData)
+        {
+            var patientDetails = _patientApi.GetFullPatientDetails(formData.PatientURN);
+
+            if (patientDetails != null && patientDetails.BedNumber != formData.BedNumber)
+            {
+                TempData["Error"] = $"Cannot discharge patient not assigned to bed: {patientDetails.BedNumber}";
+                return RedirectToAction(nameof(BedController.DischargeFromBed), new { bedNumber = formData.BedNumber });
+            }
+
+            var dischargePatient = _patientApi.DischargePatientFromBed(formData.PatientURN, formData.BedNumber, formData.EmployeeId);
+
+            if (dischargePatient == false)
+            {
+                // Add a super informative error here to frustrate users
+                TempData["Error"] = "An error occurred when discharging patient from bed";
+                return RedirectToAction(nameof(BedController.DischargeFromBed), new { bedNumber = formData.BedNumber });
+            }
+
+            return RedirectToAction(nameof(BedController.BedDetails), new { bedNumber = formData.BedNumber });
         }
     }
 }

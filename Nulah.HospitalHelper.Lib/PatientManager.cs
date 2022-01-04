@@ -195,6 +195,16 @@ namespace Nulah.HospitalHelper.Lib
                 return false;
             }
 
+            // Clear the patients presenting issue.
+            // This should return null on success
+            var healthDetails = _patientRepository.ClearHealthDetails(patientURN);
+
+            // Any non-null value indicates a failure
+            if (healthDetails != null)
+            {
+                return false;
+            }
+
             return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
         }
     }

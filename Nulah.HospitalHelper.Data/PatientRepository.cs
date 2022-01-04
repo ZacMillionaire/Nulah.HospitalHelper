@@ -364,6 +364,36 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public PatientHealthDetail? ClearHealthDetails(int patientURN)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"DELETE FROM 
+                        [{nameof(PatientHealthDetail)}s]
+                    WHERE 
+                        [{nameof(PatientHealthDetail.PatientId)}] = $patientURN;";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "patientURN", patientURN }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteNonQuery();
+
+                    if (rowsActioned == 1)
+                    {
+                        return GetPatientHealthDetails(patientURN);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();

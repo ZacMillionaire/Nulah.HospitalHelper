@@ -91,5 +91,11 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="presentingIssue"></param>
         /// <returns></returns>
         PatientHealthDetail? SetHealthDetails(int patientURN, string presentingIssue);
+        /// <summary>
+        /// Clears a patients health details
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns>Null when patient details are cleared</returns>
+        PatientHealthDetail? ClearHealthDetails(int patientURN);
     }
 }
