@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Nulah.HospitalHelper.Api.Controllers;
 using Nulah.HospitalHelper.Data;
 using Nulah.HospitalHelper.Lib;
@@ -18,7 +19,8 @@ namespace Nulah.HospitalHelper.Api
 
             app.UseHttpsRedirection();
 
-            //app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapControllers();
 
             app.Run();
@@ -33,20 +35,7 @@ namespace Nulah.HospitalHelper.Api
 #if DEBUG
             ConfigureDependencies(builder.Services);
 #endif
-            /*
-            // Create one off instances of repositories required
-            var dataRepository = new SqliteDataRepository($"Data Source=./hospitalhelper.db;");
 
-            dataRepository.InitialiseDatabase();
-
-            var employeeRepository = new EmployeeRepository(dataRepository);
-            // Add lazy api authentication
-            // And it is _very_ lazy
-            builder.Services
-                .AddAuthentication(opts => opts.DefaultScheme = LazyApiAuthentication.AuthenticationSchemes)
-                .AddScheme<LazyApiSchemeOptions, LazyApiAuthentication>(LazyApiAuthentication.AuthenticationSchemes, null);
-
-            */
             builder.Services.AddControllers();
             //builder.Services.AddSingleton(ParseAppSettings());
 
@@ -82,7 +71,15 @@ namespace Nulah.HospitalHelper.Api
             services.AddTransient(isp => new UserApiController(userManager));
             services.AddTransient(isp => new EmployeeApiController(employeeManager));
             services.AddTransient(isp => new PatientApiController(patientManager, employeeManager, bedManager));
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(x =>
+                {
+                    x.LoginPath = "/Login";
+                    x.LogoutPath = "/Logout";
+                });
         }
+
 #endif
 
         /*

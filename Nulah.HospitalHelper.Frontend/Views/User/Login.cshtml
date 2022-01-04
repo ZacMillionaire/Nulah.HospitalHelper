@@ -1,0 +1,25 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.User
+@model LoginFormData
+
+@if (ViewBag.Error != null)
+{
+	<h1>@((string)ViewBag.Error)</h1>
+}
+
+<h1>Login</h1>
+<form asp-controller="User" asp-action="LoginUser" method="post">
+	<table>
+		<tbody>
+			<tr>
+				<td>Employee Id</td>
+				<td><input asp-for="EmployeeId" type="text" /></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td><input asp-for="Password" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<input asp-for=ReturnUrl hidden />
+	<button type="submit">Login</button>
+</form>

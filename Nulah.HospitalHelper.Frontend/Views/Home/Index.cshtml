@@ -38,7 +38,7 @@
 			{
 				<tr>
 					<td>
-						@bed.BedNumber
+						<a asp-controller="Bed" asp-action="BedDetails" asp-route-BedNumber="@bed.BedNumber">@bed.BedNumber</a>
 					</td>
 					<td>
 						@bed.BedStatus
@@ -64,12 +64,12 @@
 					<td>
 						@if (bed.BedStatus == BedStatus.Free)
 						{
-							<a href="Bed/Admit/@bed.BedNumber">Admit</a>
+							<a asp-controller="Bed" asp-action="AdmitToBed" asp-route-BedNumber="@bed.BedNumber">Admit</a>
 						}
 						else
 						{
-							<a href="Bed/AddComment/@bed.BedNumber">Add comment</a>
-							<a href="Bed/Discharge/@bed.BedNumber">Discharge</a>
+							<a asp-controller="Bed" asp-action="AddComment" asp-route-BedNumber="@bed.BedNumber">Add comment</a>
+							<a asp-controller="Bed" asp-action="DiscargeFromBed" asp-route-BedNumber="@bed.BedNumber">Discharge</a>
 						}
 					</td>
 				</tr>

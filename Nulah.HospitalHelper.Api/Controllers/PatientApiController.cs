@@ -10,7 +10,7 @@ using System.Net.Mime;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Patients")]
+    [Route("Api/Patients")]
     [LazyApiAuthorise]
     public class PatientApiController : ControllerBase
     {
@@ -64,6 +64,57 @@ namespace Nulah.HospitalHelper.Api.Controllers
         public PublicPatientDetails? GetFullPatientDetails(int patientURN)
         {
             return _patientManager.GetPatientDetails(patientURN);
+        }
+
+        /// <summary>
+        /// Returns true on patient admitted, or false if the patient does not exist, the bed does not exist, the employee does not exist, or presenting issue was null
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <param name="presentingIssue"></param>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        public bool AdmitPatientToBed(int patientURN, int bedNumber, string presentingIssue, int employeeId)
+        {
+
+            if (string.IsNullOrWhiteSpace(presentingIssue) == true)
+            {
+                return false;
+            }
+
+            var bed = _bedManager.GetBedById(bedNumber);
+
+            if (bed == null)
+            {
+                return false;
+            }
+            else if (bed.BedStatus != BedStatus.Free)
+            {
+                return false;
+            }
+
+            var employee = _employeeManager.GetEmployee(employeeId);
+
+            if (employee == null)
+            {
+                return false;
+
+            }
+
+            var patientAddedToBed = _patientManager.AddPatientToBed(patientURN, bedNumber, presentingIssue);
+
+            if (patientAddedToBed == true)
+            {
+                // Create a comment for the patient to indicate they were admitted
+                var admittedComment = _patientManager.AddCommentToPatient("Admitted", patientURN, employeeId);
+
+                if (admittedComment != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         [HttpGet]
@@ -302,6 +353,15 @@ namespace Nulah.HospitalHelper.Api.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(admitDischargePatientRequest.PresentingIssue) == true)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return ToJsonResult(new ErrorApiResponse
+                        {
+                            Message = "Presenting Issue cannot be empty",
+                        });
+                    }
+
                     var bed = _bedManager.GetBedById(admitDischargePatientRequest.BedNumber);
 
                     if (bed == null)

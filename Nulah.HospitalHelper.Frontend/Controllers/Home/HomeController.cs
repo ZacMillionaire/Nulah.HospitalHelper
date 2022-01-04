@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Nulah.HospitalHelper.Api.Controllers;
+using Nulah.HospitalHelper.Frontend.Models;
 using Nulah.HospitalHelper.Frontend.Models.Home;
 
 namespace Nulah.HospitalHelper.Frontend.Controllers.Home
 {
+    [LazyUserAuthorise]
     public class HomeController : Controller
     {
         private readonly BedApiController _bedApi;

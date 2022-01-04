@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nulah.HospitalHelper.Api.Controllers;
+using Nulah.HospitalHelper.Frontend.Models;
 using Nulah.HospitalHelper.Frontend.Models.Patient;
 
 namespace Nulah.HospitalHelper.Frontend.Controllers.Patient
 {
     [Route("Patient")]
+    [LazyUserAuthorise]
     public class PatientController : Controller
     {
         private readonly PatientApiController _patientApi;

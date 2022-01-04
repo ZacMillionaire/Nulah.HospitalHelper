@@ -9,7 +9,7 @@ using System.Net.Mime;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Employees")]
+    [Route("Api/Employees")]
     [LazyApiAuthorise]
     public class EmployeeApiController : ControllerBase
     {

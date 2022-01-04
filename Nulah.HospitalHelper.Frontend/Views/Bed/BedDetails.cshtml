@@ -1,12 +1,11 @@
 ﻿@using Nulah.HospitalHelper.Frontend.Models.Bed;
-@using Nulah.HospitalHelper.Lib;
-@model NewBedViewModel;
+@model BedDetailsViewModel
 @if (Model == null || Model.Bed == null)
 {
-	<h1>Failed to create new bed</h1>
+	<h1>Failed to find bed</h1>
 }
 else
 {
-	<h1>New bed created</h1>
+	<h1>Bed Details</h1>
 	@await Html.PartialAsync("_PartialBedDetail",Model.Bed)
 }

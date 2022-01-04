@@ -6,7 +6,7 @@ using Nulah.HospitalHelper.Lib;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Beds")]
+    [Route("Api/Beds")]
     [LazyApiAuthorise]
     public class BedApiController : ControllerBase
     {
