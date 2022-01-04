@@ -1,0 +1,58 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Patient;
+@using Nulah.HospitalHelper.Core.Models;
+@model PatientFullDetailViewModel;
+
+@{
+	if (Model == null || Model.PatientDetails == null)
+	{
+		ViewData["Title"] = "Patient Not Found";
+	}
+	else
+	{
+		ViewData["Title"] = $"{Model.PatientDetails!.DisplayName}";
+	}
+}
+
+<h1>Patient Details</h1>
+@if (Model == null || Model.PatientDetails == null)
+{
+	<h2>No patient found</h2>
+}
+else
+{
+	<h2>@Model.PatientDetails.DisplayName</h2>
+	<div>
+		<table>
+			<tr>
+				<td>Name:</td>
+				<td>@Model.PatientDetails.DisplayName</td>
+			</tr>
+			<tr>
+				<td>URN:</td>
+				<td>@Model.PatientDetails.DisplayURN</td>
+			</tr>
+			<tr>
+				<td>Date of birth:</td>
+				<td>@Model.PatientDetails.DateOfBirth</td>
+			</tr>
+			<tr>
+				<td>Bed:</td>
+				<td>@Model.PatientDetails.BedNumber</td>
+			</tr>
+			<tr>
+				<td>Presenting issue:</td>
+				<td>@Model.PatientDetails.PresentingIssue</td>
+			</tr>
+		</table>
+		<div>
+			Comments
+
+			Date Time Nurse Comment
+			02-Feb-2020 09:50 Kelly A. Admitted
+			02-Feb-2020 09:55 Mary P. Temp checked
+			02-Feb-2020 10:25 Mary P. Blood pressure checked
+			02-Feb-2020 10:35 Kelly A. Discharged
+		</div>
+	</div>
+}
+

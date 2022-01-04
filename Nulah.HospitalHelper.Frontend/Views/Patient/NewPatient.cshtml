@@ -1,0 +1,39 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Patient;
+@using Nulah.HospitalHelper.Core.Models;
+@model NewPatientFormData;
+
+Create new patient form
+
+@if (ViewData.ContainsKey("Errors") == true && ViewData["Errors"] != null && ViewData["Errors"] is string[] ViewErrors)
+{
+	<div>
+		<ul>
+			@foreach (string error in ViewErrors)
+			{
+				<li>@error</li>
+			}
+		</ul>
+	</div>
+}
+
+<form asp-controller="Patient" asp-action="NewPatientSubmit" method="post">
+	<table>
+		<tr>
+			<td>Full Name*</td>
+			<td><input required=required asp-for="FullName" /></td>
+		</tr>
+		<tr>
+			<td>Display First Name*</td>
+			<td><input required=required asp-for="DisplayFirstName" /></td>
+		</tr>
+		<tr>
+			<td>Display Last Name</td>
+			<td><input asp-for="DisplayLastName" /></td>
+		</tr>
+		<tr>
+			<td>Date of Birth*</td>
+			<td><input asp-for="DateOfBirthUTC" type="date" /></td>
+		</tr>
+	</table>
+	<button type="submit">Create New Patient</button>
+</form>
