@@ -50,8 +50,11 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
             var viewModel = new AdmitToBedViewModel
             {
                 Bed = _bedApi.GetBed(bedNumber),
+                // API should be updated to provide a means to filter out patients already assigned to a bed
                 Patients = _patientApi.GetPatientList()
             };
+
+            ViewBag.Error = TempData["Error"];
 
             return View(viewModel);
         }
@@ -61,13 +64,21 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
         [Route("{BedNumber}/Admit")]
         public IActionResult AdmitPatientToBed([FromForm] AdmitPatientToBedFormData formData)
         {
+            var patientDetails = _patientApi.GetFullPatientDetails(formData.PatientURN);
+
+            if (patientDetails != null && patientDetails.BedNumber != null)
+            {
+                TempData["Error"] = $"Patient is already assigned to bed: {patientDetails.BedNumber}";
+                return RedirectToAction(nameof(BedController.AdmitToBed), new { bedNumber = formData.BedNumber });
+            }
+
             var admitToBed = _patientApi.AdmitPatientToBed(formData.PatientURN, formData.BedNumber, formData.PresentingIssue, formData.EmployeeId);
 
             if (admitToBed == false)
             {
                 // Add a super informative error here to frustrate users
-                ViewBag.Error = "An error occurred when adding patient to bed";
-                return RedirectToAction(nameof(BedController.AdmitToBed));
+                TempData["Error"] = "An error occurred when adding patient to bed";
+                return RedirectToAction(nameof(BedController.AdmitToBed), new { bedNumber = formData.BedNumber });
             }
             //var viewModel = new AdmitToBedViewModel
             //{

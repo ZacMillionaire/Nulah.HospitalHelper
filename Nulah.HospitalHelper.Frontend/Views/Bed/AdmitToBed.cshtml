@@ -10,7 +10,10 @@ else
 {
 	@if (ViewBag.Error != null)
 	{
-		<h1>@((string)ViewBag.Error)</h1>
+		<div>
+		<h1>Error</h1>
+		<h2>@((string)ViewBag.Error)</h2>
+		</div>
 	}
 
 	<h1>Bed Details</h1>
