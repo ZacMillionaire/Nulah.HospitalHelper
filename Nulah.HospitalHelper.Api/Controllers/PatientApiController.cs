@@ -25,6 +25,47 @@ namespace Nulah.HospitalHelper.Api.Controllers
             _bedManager = bedManager;
         }
 
+
+        /// <summary>
+        /// Creates a new patient, returning null on failure
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        public PublicPatient? CreateNewPatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
+        {
+            // Return null if a required value is null.
+            // Other methods that call this may already perform this check, but this is an additional safeguard
+            if (string.IsNullOrWhiteSpace(fullName)
+                || string.IsNullOrWhiteSpace(displayFirstName))
+            {
+                return null;
+            }
+
+            return _patientManager.CreateNewPatient(fullName, displayFirstName, displayLastName, dateOfBirthUTC);
+        }
+
+        /// <summary>
+        /// Returns all patients currently available
+        /// </summary>
+        /// <returns></returns>
+        public List<PublicPatient> GetPatientList()
+        {
+            return _patientManager.GetPatients();
+        }
+
+        /// <summary>
+        /// Returns the full patient details by <paramref name="patientURN"/>, or null if not found
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns></returns>
+        public PublicPatientDetails? GetFullPatientDetails(int patientURN)
+        {
+            return _patientManager.GetPatientDetails(patientURN);
+        }
+
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "All patients in the system", typeof(PatientListApiResponse), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception is thrown", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
@@ -34,7 +75,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
             {
                 try
                 {
-                    var patients = _patientManager.GetPatients();
+                    var patients = GetPatientList();
 
                     return ToJsonResult(new PatientListApiResponse
                     {
@@ -153,7 +194,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
                         });
                     }
 
-                    var newPatient = _patientManager.CreateNewPatient(createPatientRequest.fullName, createPatientRequest.displayFirstName, createPatientRequest.displayLastName, createPatientRequest.dateOfBirthUTC);
+                    var newPatient = CreateNewPatient(createPatientRequest.fullName, createPatientRequest.displayFirstName, createPatientRequest.displayLastName, createPatientRequest.dateOfBirthUTC);
 
                     if (newPatient == null)
                     {

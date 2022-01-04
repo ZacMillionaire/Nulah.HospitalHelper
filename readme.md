@@ -23,6 +23,10 @@
 	- Basically multiple employees can exist with the same first, last and display names, just like in real life
 - Creating employees, beds and patients aren't specified, but it'd be odd for them to not exist, so those features have been added.
 - Not being logged in will redirect all requests to a login page, and unauthenticated API requests will be denied
+- Data and API models are separated to prevent "accidental" data creation, API models are prefixed with 'Public' by convention
+	- The only exception are Enums which can be left as is
+- The front end has a hard dependency on the API project due to time, however in a realistic scenario with more time, the projects are designed so that the API project can run stand alone, and the front end can similarly do the same, were it designed with a SPA framework
+	- Regardless of this, the API project _can_ run stand alone, and will present a swagger UI when run in a development environment.
 
 ## Out of Scope
 
