@@ -33,25 +33,49 @@ else
 			</tr>
 			<tr>
 				<td>Date of birth:</td>
-				<td>@Model.PatientDetails.DateOfBirth</td>
+				<td>@Model.PatientDetails.DateOfBirth.ToString("dd-MMM-yyyy")</td>
 			</tr>
 			<tr>
 				<td>Bed:</td>
-				<td>@Model.PatientDetails.BedNumber</td>
+				<td>@(Model.PatientDetails.BedNumber != null ? Model.PatientDetails.BedNumber : "<Not Admitted>")</td>
 			</tr>
 			<tr>
 				<td>Presenting issue:</td>
-				<td>@Model.PatientDetails.PresentingIssue</td>
+				<td>@(Model.PatientDetails.PresentingIssue ??  "<Not Admitted>")</td>
 			</tr>
 		</table>
 		<div>
-			Comments
-
-			Date Time Nurse Comment
-			02-Feb-2020 09:50 Kelly A. Admitted
-			02-Feb-2020 09:55 Mary P. Temp checked
-			02-Feb-2020 10:25 Mary P. Blood pressure checked
-			02-Feb-2020 10:35 Kelly A. Discharged
+			<div>Comments</div>
+			<table>
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Time</th>
+						<th>Nurse</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.PatientDetails.Comments.Count == 0)
+					{
+						<tr>
+							<th colspan="4">No comments</th>
+						</tr>
+					}
+					else
+					{
+						@foreach (PublicPatientComment comment in Model.PatientDetails.Comments)
+						{
+							<tr>
+								<td>@comment.DateTimeUTC.Date.ToString("dd-MMM-YYYY")</td>
+								<td>@comment.DateTimeUTC.ToString("HH:mm")</td>
+								<td>@comment.Nurse</td>
+								<td>@comment.Comment</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
 		</div>
 	</div>
 }

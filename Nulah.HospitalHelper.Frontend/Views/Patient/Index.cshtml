@@ -43,8 +43,8 @@ else
 							<td>@patient.DisplayName</td>
 							<td>@patient.DisplayFirstName</td>
 							<td>@patient.DisplayLastName</td>
-							<td>@patient.DateOfBirth</td>
-							<td><a asp-controller="Patient" asp-action="View" asp-route-patientURN="@patient.URN">Manage</a></td>
+							<td>@patient.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+							<td><a asp-controller="Patient" asp-action="ViewPatient" asp-route-patientURN="@patient.URN">Manage</a></td>
 						</tr>
 					}
 				}
