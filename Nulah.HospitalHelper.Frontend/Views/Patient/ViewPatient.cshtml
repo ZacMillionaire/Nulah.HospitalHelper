@@ -16,16 +16,15 @@
 <h1>Patient Details</h1>
 @if (Model == null || Model.PatientDetails == null)
 {
-	<h2>No patient found</h2>
+	<h2 class="error-text">No patient found</h2>
 }
 else
 {
-	<h2>@Model.PatientDetails.DisplayName</h2>
 	<div>
-		<table>
+		<table class="data-table auto-size">
 			<tr>
-				<td>Name:</td>
-				<td>@Model.PatientDetails.DisplayName</td>
+				<td>Full Name:</td>
+				<td>@Model.PatientDetails.FullName</td>
 			</tr>
 			<tr>
 				<td>URN:</td>
@@ -45,8 +44,8 @@ else
 			</tr>
 		</table>
 		<div>
-			<div>Comments</div>
-			<table>
+			<h2>Comments</h2>
+			<table class="data-table">
 				<thead>
 					<tr>
 						<th>Date</th>

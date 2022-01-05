@@ -3,17 +3,17 @@
 @model AddCommentBedViewModel
 @if (Model == null || Model.Bed == null || Model.Bed.Patient == null)
 {
-	<h1>Unable to add comment to bed</h1>
+	<h1 class="error-text">Unable to add comment to bed</h1>
 }
 else if (Model.Bed.BedStatus == BedStatus.Free)
 {
-	<h1>Bed is not occupied</h1>
+	<h1 class="error-text">Bed is not occupied</h1>
 }
 else
 {
 	@if (ViewData.ContainsKey("Error") == true && ViewData["Error"] != null && ViewData["Error"] is string ViewError)
 	{
-		<h2>@ViewError</h2>
+		<h2 class="error-text">@ViewError</h2>
 	}
 
 	<h1>Add Comment to patient: @Model.Bed.Patient.DisplayName</h1>
