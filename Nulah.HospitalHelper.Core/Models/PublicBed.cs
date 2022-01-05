@@ -11,7 +11,42 @@ namespace Nulah.HospitalHelper.Core.Models
         public Guid Id { get; set; }
         public int BedNumber { get; set; }
         public BedStatus BedStatus { get; set; }
-        public PublicPatient? Patient { get; set; }
-        public DateTime? LastUpdateUTC { get; set; }
+        public PublicPatientDetails? Patient { get; set; }
+
+        public string? LastComment
+        {
+            get
+            {
+                if (Patient != null && Patient.Comments.Count != 0)
+                {
+                    return Patient.Comments.Last().Comment;
+                }
+                return null;
+            }
+        }
+
+        public string? Nurse
+        {
+            get
+            {
+                if (Patient != null && Patient.Comments.Count != 0)
+                {
+                    return Patient.Comments.Last().Nurse;
+                }
+                return null;
+            }
+        }
+
+        public DateTime? LastUpdatedUTC
+        {
+            get
+            {
+                if (Patient != null && Patient.Comments.Count != 0)
+                {
+                    return Patient.Comments.Last().DateTimeUTC;
+                }
+                return null;
+            }
+        }
     }
 }

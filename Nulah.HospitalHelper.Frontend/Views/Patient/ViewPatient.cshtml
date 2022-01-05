@@ -1,0 +1,81 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Patient;
+@using Nulah.HospitalHelper.Core.Models;
+@model PatientFullDetailViewModel;
+
+@{
+	if (Model == null || Model.PatientDetails == null)
+	{
+		ViewData["Title"] = "Patient Not Found";
+	}
+	else
+	{
+		ViewData["Title"] = $"{Model.PatientDetails!.DisplayName}";
+	}
+}
+
+<h1>Patient Details</h1>
+@if (Model == null || Model.PatientDetails == null)
+{
+	<h2 class="error-text">No patient found</h2>
+}
+else
+{
+	<div>
+		<table class="data-table auto-size">
+			<tr>
+				<td>Full Name:</td>
+				<td>@Model.PatientDetails.FullName</td>
+			</tr>
+			<tr>
+				<td>URN:</td>
+				<td>@Model.PatientDetails.DisplayURN</td>
+			</tr>
+			<tr>
+				<td>Date of birth:</td>
+				<td>@Model.PatientDetails.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+			</tr>
+			<tr>
+				<td>Bed:</td>
+				<td>@(Model.PatientDetails.BedNumber != null ? Model.PatientDetails.BedNumber : "<Not Admitted>")</td>
+			</tr>
+			<tr>
+				<td>Presenting issue:</td>
+				<td>@(Model.PatientDetails.PresentingIssue ??  "<Not Admitted>")</td>
+			</tr>
+		</table>
+		<div>
+			<h2>Comments</h2>
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Time</th>
+						<th>Nurse</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.PatientDetails.Comments.Count == 0)
+					{
+						<tr>
+							<th colspan="4">No comments</th>
+						</tr>
+					}
+					else
+					{
+						@foreach (PublicPatientComment comment in Model.PatientDetails.Comments)
+						{
+							<tr>
+								<td>@comment.DateTimeUTC.Date.ToString("dd-MMM-yyyy")</td>
+								<td>@comment.DateTimeUTC.ToString("HH:mm")</td>
+								<td>@comment.Nurse</td>
+								<td>@comment.Comment</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
+

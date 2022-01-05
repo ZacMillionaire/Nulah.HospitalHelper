@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+Nulah.HospitalHelper.Api/hospitalhelper.db
+/Nulah.HospitalHelper.Frontend/hospitalhelper.db

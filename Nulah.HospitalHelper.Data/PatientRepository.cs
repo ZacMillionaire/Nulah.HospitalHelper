@@ -163,7 +163,7 @@ namespace Nulah.HospitalHelper.Data
                         res.ExecuteNonQuery();
                     }
 
-                    var commentInsertId = GetLastInsertId(conn, transaction);
+                    var commentInsertId = SqliteDbHelpers.GetLastInsertId(_repository, conn, transaction);
 
                     if (commentInsertId == null)
                     {
@@ -173,7 +173,7 @@ namespace Nulah.HospitalHelper.Data
 
                     var linkCommentQuery = $@"INSERT INTO [{nameof(CommentPatientEmployee)}] (
                             [{nameof(CommentPatientEmployee.CommentId)}],
-                            [{nameof(CommentPatientEmployee.PatientId)}],
+                            [{nameof(CommentPatientEmployee.PatientURN)}],
                             [{nameof(CommentPatientEmployee.EmployeeId)}]
                         ) VALUES (
                             $commentId, 
@@ -275,7 +275,7 @@ namespace Nulah.HospitalHelper.Data
 	                        ON [Comments].[{nameof(PatientComment.Id)}] = [CommentLink].[{nameof(CommentPatientEmployee.CommentId)}]
                         LEFT JOIN [{nameof(Employee)}s] 
 	                        ON [CommentLink].[{nameof(CommentPatientEmployee.EmployeeId)}] = [Employees].[{nameof(Employee.EmployeeId)}]
-                        WHERE [CommentLink].[{nameof(CommentPatientEmployee.PatientId)}] = $patientURN
+                        WHERE [CommentLink].[{nameof(CommentPatientEmployee.PatientURN)}] = $patientURN
                         ORDER BY [Comments].[{nameof(PatientComment.DateTimeUTC)}] ASC";
 
                     using (var res = _repository.CreateCommand(getCommentLinksQuery, conn, new Dictionary<string, object> { { "patientURN", patientURN } }, transaction))
@@ -331,26 +331,162 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public PatientHealthDetail? SetHealthDetails(int patientURN, string presentingIssue)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"INSERT OR REPLACE INTO [{nameof(PatientHealthDetail)}s] (
+                        [{nameof(PatientHealthDetail.PatientId)}],
+                        [{nameof(PatientHealthDetail.PresentingIssue)}]
+                    ) VALUES (
+                        $patientURN, $presentingIssue
+                    )";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "patientURN", patientURN },
+                    { "presentingIssue", presentingIssue }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteNonQuery();
+
+                    if (rowsActioned == 1)
+                    {
+                        return GetPatientHealthDetails(patientURN);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc/>
+        public PatientHealthDetail? ClearHealthDetails(int patientURN)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"DELETE FROM 
+                        [{nameof(PatientHealthDetail)}s]
+                    WHERE 
+                        [{nameof(PatientHealthDetail.PatientId)}] = $patientURN;";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "patientURN", patientURN }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteNonQuery();
+
+                    if (rowsActioned == 1)
+                    {
+                        return GetPatientHealthDetails(patientURN);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Returns the rowid of the last INSERT command for the given <paramref name="dbConnection"/>
-        /// </summary>
-        /// <param name="dbConnection"></param>
-        /// <returns></returns>
-        private int? GetLastInsertId(DbConnection dbConnection, DbTransaction? dbTransaction = null)
+        /// <inheritdoc/>
+        public Patient? CreatePatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
         {
-            using (var res = _repository.CreateCommand("SELECT last_insert_rowid();", dbConnection, dbTransaction: dbTransaction))
+            using (var conn = _repository.GetConnection())
             {
-                var lastRowId = res.ExecuteScalar() as long?;
-                return lastRowId == null
-                    ? null
-                    : Convert.ToInt32(lastRowId);
+                conn.Open();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    var createPatientQueryText = $@"INSERT INTO [{nameof(Patient)}s] (
+                        [{nameof(Patient.Id)}],
+                        [{nameof(Patient.DisplayFirstName)}],
+                        [{nameof(Patient.DisplayLastName)}],
+                        [{nameof(Patient.FullName)}],
+                        [{nameof(Patient.DateOfBirthUTC)}] 
+                    ) VALUES (
+                        $patientId,
+                        $displayFirstName,
+                        $displayLastName,
+                        $fullName,
+                        $dateOfBirthUTC
+                    )";
+
+                    var createPatientParameters = new Dictionary<string, object> {
+                        { "patientId", Guid.NewGuid() },
+                        { "displayFirstName", displayFirstName },
+                        { "displayLastName", displayLastName },
+                        { "fullName", fullName },
+                        { "dateOfBirthUTC", dateOfBirthUTC.Ticks },
+                    };
+
+                    using (var res = _repository.CreateCommand(createPatientQueryText, conn, createPatientParameters, transaction))
+                    {
+                        var rowsCreated = res.ExecuteNonQuery();
+
+                        if (rowsCreated == 1)
+                        {
+                            var patientInsertId = SqliteDbHelpers.GetLastInsertId(_repository, conn, transaction);
+
+                            if (patientInsertId != null)
+                            {
+                                transaction.Commit();
+                                return GetPatient((int)patientInsertId);
+                            }
+                        }
+                    }
+
+                    // Rollback the transaction if we fail to find the inserted comment to return, or if some other unknown branch
+                    // caused a silent error
+                    transaction.Rollback();
+                }
             }
+
+            // Should probably throw instead if the patient failed to be created
+            return null;
         }
+
+        /// <inheritdoc/>
+        public int GetAdmittanceStats(DateTime dateUTC)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"SELECT 
+                        [{nameof(PatientAdmitStat.AdmittedCount)}]
+                    FROM
+                        [{nameof(PatientAdmitStat)}s]
+                    WHERE 
+                        [{nameof(PatientAdmitStat.DateUTC)}] = $date;";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "date", dateUTC.Date.Ticks }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteScalar();
+                    if (rowsActioned != null && rowsActioned != DBNull.Value)
+                    {
+                        return Convert.ToInt32(rowsActioned);
+                    }
+                }
+            }
+
+            return 0;
+        }
+
 
         /// <summary>
         /// Converts the row at <paramref name="reader"/> to a <see cref="Patient"/>
@@ -364,7 +500,9 @@ namespace Nulah.HospitalHelper.Data
                 Id = Guid.Parse((string)reader[nameof(Patient.Id)]),
                 URN = Convert.ToInt32(reader[nameof(Patient.URN)]),
                 DisplayFirstName = (string)reader[nameof(Patient.DisplayFirstName)],
-                DisplayLastName = (string)reader[nameof(Patient.DisplayLastName)],
+                DisplayLastName = reader[nameof(Patient.DisplayLastName)] != DBNull.Value
+                    ? (string)reader[nameof(Patient.DisplayLastName)]
+                    : null,
                 FullName = (string)reader[nameof(Patient.FullName)],
                 // DateTime is stored as a long from DateTime.UtcNow.Ticks
                 DateOfBirthUTC = new DateTime((long)reader[nameof(Patient.DateOfBirthUTC)]),

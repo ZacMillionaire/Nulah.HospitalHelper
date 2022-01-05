@@ -11,6 +11,5 @@ namespace Nulah.HospitalHelper.Core.Models.Data
         public Guid Id { get; set; }
         public BedStatus BedStatus { get; set; }
         public int Number { get; set; }
-        public DateTime? LastUpdateUTC { get; set; }
     }
 }

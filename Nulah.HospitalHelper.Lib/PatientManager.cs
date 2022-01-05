@@ -1,4 +1,5 @@
-﻿using Nulah.HospitalHelper.Core.Interfaces;
+﻿using Nulah.HospitalHelper.Core;
+using Nulah.HospitalHelper.Core.Interfaces;
 using Nulah.HospitalHelper.Core.Models;
 using Nulah.HospitalHelper.Core.Models.Data;
 using System;
@@ -33,8 +34,11 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = x.Id,
                 DateOfBirth = x.DateOfBirthUTC,
-                DisplayName = $"{x.DisplayFirstName} {x.DisplayLastName}",
-                URN = x.URN
+                DisplayName = Formatters.PersonNameToDisplayFormat(x.DisplayFirstName, x.DisplayLastName),
+                URN = x.URN,
+                FullName = x.FullName,
+                DisplayFirstName = x.DisplayFirstName,
+                DisplayLastName = x.DisplayLastName,
             })
             .ToList();
         }
@@ -57,7 +61,9 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
-                DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayFirstName = patient.DisplayFirstName,
+                DisplayLastName = patient.DisplayLastName,
                 FullName = patient.FullName,
                 URN = patient.URN
             };
@@ -83,7 +89,9 @@ namespace Nulah.HospitalHelper.Lib
             {
                 Id = patient.Id,
                 DateOfBirth = patient.DateOfBirthUTC,
-                DisplayName = GetDisplayName(patient.DisplayFirstName, patient.DisplayLastName),
+                DisplayFirstName = patient.DisplayFirstName,
+                DisplayLastName = patient.DisplayLastName,
+                DisplayName = Formatters.PersonNameToDisplayFormat(patient.DisplayFirstName, patient.DisplayLastName),
                 FullName = patient.FullName,
                 URN = patient.URN,
                 Comments = patient.Comments
@@ -98,6 +106,37 @@ namespace Nulah.HospitalHelper.Lib
                 PresentingIssue = patient.HealthDetails?.PresentingIssue,
                 BedId = bed?.Id,
                 BedNumber = bed?.Number
+            };
+        }
+
+        /// <summary>
+        /// Creates a new patient and returns full details on success
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public PublicPatient CreateNewPatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
+        {
+            var newPatient = _patientRepository.CreatePatient(fullName, displayFirstName, displayLastName, dateOfBirthUTC);
+
+            if (newPatient == null)
+            {
+                // Generic throw if we had a "silent error" that resulted in no patient being created.
+                throw new Exception("Failed to create new patient");
+            }
+
+            return new PublicPatient
+            {
+                Id = newPatient.Id,
+                DisplayName = Formatters.PersonNameToDisplayFormat(newPatient.DisplayFirstName, newPatient.DisplayLastName),
+                FullName = newPatient.FullName,
+                DateOfBirth = newPatient.DateOfBirthUTC,
+                DisplayFirstName = newPatient.DisplayFirstName,
+                DisplayLastName = newPatient.DisplayLastName,
+                URN = newPatient.URN
             };
         }
 
@@ -122,23 +161,61 @@ namespace Nulah.HospitalHelper.Lib
         }
 
         /// <summary>
-        /// Returns a patients display name given their first and last display names.
-        /// <para>
-        /// If <paramref name="displayLastName"/> is null, <paramref name="displayFirstName"/> will be returned,
-        /// otherwise "<paramref name="displayFirstName"/> <paramref name="displayLastName"/>" will be returned
-        /// </para>
+        /// Adds a patient to a bed, return true on success, or false if the bed is in use or does not exist
         /// </summary>
-        /// <param name="displayFirstName"></param>
-        /// <param name="displayLastName"></param>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
         /// <returns></returns>
-        private string GetDisplayName(string displayFirstName, string? displayLastName = null)
+        public bool AddPatientToBed(int patientURN, int bedNumber, string presentingIssue)
         {
-            if (string.IsNullOrWhiteSpace(displayLastName))
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
             {
-                return displayFirstName;
+                return false;
             }
 
-            return $"{displayFirstName} {displayLastName}";
+            var healthDetails = _patientRepository.SetHealthDetails(patientURN, presentingIssue);
+
+            return _bedRepository.AddPatientToBed(patientURN, bedNumber);
+        }
+
+        /// <summary>
+        /// Removes a patient from a bed, returning true on success, or false if the patient is not assigned to that bed, or the bed does not exist
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <returns></returns>
+        public bool RemovePatientFromBed(int patientURN, int bedNumber)
+        {
+            var patient = _patientRepository.GetPatient(patientURN);
+
+            if (patient == null)
+            {
+                return false;
+            }
+
+            // Clear the patients presenting issue.
+            // This should return null on success
+            var healthDetails = _patientRepository.ClearHealthDetails(patientURN);
+
+            // Any non-null value indicates a failure
+            if (healthDetails != null)
+            {
+                return false;
+            }
+
+            return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
+        }
+
+        /// <summary>
+        /// Returns the number of patients admitted for the given date
+        /// </summary>
+        /// <param name="date">Will be converted to UTC</param>
+        /// <returns></returns>
+        public int GetAdmittanceCountForDate(DateTime date)
+        {
+            return _patientRepository.GetAdmittanceStats(date.ToUniversalTime().Date);
         }
     }
 }

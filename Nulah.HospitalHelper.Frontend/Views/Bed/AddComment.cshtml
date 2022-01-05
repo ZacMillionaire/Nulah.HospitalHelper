@@ -1,0 +1,30 @@
+﻿@using Nulah.HospitalHelper.Core.Models
+@using Nulah.HospitalHelper.Frontend.Models.Bed
+@model AddCommentBedViewModel
+@if (Model == null || Model.Bed == null || Model.Bed.Patient == null)
+{
+	<h1 class="error-text">Unable to add comment to bed</h1>
+}
+else if (Model.Bed.BedStatus == BedStatus.Free)
+{
+	<h1 class="error-text">Bed is not occupied</h1>
+}
+else
+{
+	@if (ViewData.ContainsKey("Error") == true && ViewData["Error"] != null && ViewData["Error"] is string ViewError)
+	{
+		<h2 class="error-text">@ViewError</h2>
+	}
+
+	<h1>Add Comment to patient: @Model.Bed.Patient.DisplayName</h1>
+	<form asp-controller="Bed" asp-action="AddCommentToPatient" asp-route-BedNumber="@Model.Bed.BedNumber" method="post">
+		<table>
+			<tr>
+				<td>Comment</td>
+				<td><textarea name=@(nameof(AddCommentToPatientInBedFormData.Comment)) required></textarea></td>
+			</tr>
+		</table>
+		<input hidden name=@(nameof(AddCommentToPatientInBedFormData.PatientURN)) value="@Model.Bed.Patient.URN" />
+		<button type="submit">Add Comment</button>
+	</form>
+}

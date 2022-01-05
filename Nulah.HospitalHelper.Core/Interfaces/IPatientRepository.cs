@@ -72,5 +72,37 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="patientURN"></param>
         /// <returns></returns>
         PatientHealthDetail? GetPatientHealthDetails(int patientURN);
+        /// <summary>
+        /// Creates a new patient with the given details.
+        /// <para>
+        /// Returns null if the patient was unable to be created successfully.
+        /// </para>
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        Patient? CreatePatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC);
+        /// <summary>
+        /// Sets a patients health details to the given <paramref name="presentingIssue"/> by <paramref name="patientURN"/>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="presentingIssue"></param>
+        /// <returns></returns>
+        PatientHealthDetail? SetHealthDetails(int patientURN, string presentingIssue);
+        /// <summary>
+        /// Clears a patients health details
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns>Null when patient details are cleared</returns>
+        PatientHealthDetail? ClearHealthDetails(int patientURN);
+
+        /// <summary>
+        /// Returns the count of patients admitted on the given <paramref name="dateUTC"/>
+        /// </summary>
+        /// <param name="dateUTC"></param>
+        /// <returns></returns>
+        int GetAdmittanceStats(DateTime dateUTC);
     }
 }

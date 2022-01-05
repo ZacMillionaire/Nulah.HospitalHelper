@@ -1,0 +1,28 @@
+﻿@using Nulah.HospitalHelper.Core.Models
+@using Nulah.HospitalHelper.Frontend.Models.Bed;
+@using Nulah.HospitalHelper.Lib;
+@model DischargeFromBedViewModel;
+@if (Model == null || Model.Bed == null)
+{
+	<h1 class="error-text">No bed found</h1>
+}
+else
+{
+	<h1>Bed Details</h1>
+	@await Html.PartialAsync("_PartialBedDetail",Model.Bed)
+
+	<h1>Discharge Patient</h1>
+	@if (Model.Bed.Patient == null)
+	{
+		<h2>No patient admitted to bed</h2>
+	}
+	else if (Model.Bed.BedStatus == BedStatus.InUse && Model.Bed.Patient != null)
+	{
+		<form asp-controller="Bed" asp-action="DischargeFromBed" method="post">
+			<input value="@Model.Bed.BedNumber" hidden name=@(nameof(DischargePatientFromBedFormData.BedNumber)) />
+			<input value="@Model.Bed.Patient!.URN" hidden name=@(nameof(DischargePatientFromBedFormData.PatientURN)) />
+			<input value="@User.Claims.First(x => x.Type == "EmployeeId").Value" name=@(nameof(DischargePatientFromBedFormData.EmployeeId)) hidden />
+			<button type="submit">Discharge Patient</button>
+		</form>
+	}
+}

@@ -1,0 +1,53 @@
+﻿@using Nulah.HospitalHelper.Core.Models
+@using Nulah.HospitalHelper.Frontend.Models.Bed;
+@using Nulah.HospitalHelper.Lib;
+@model PublicBed;
+@if (Model == null)
+{
+	<h1>No bed to display</h1>
+}
+else
+{
+	<table class="data-table">
+		<thead>
+			<tr>
+				<th>Bed</th>
+				<th>Status</th>
+				<th>Patient</th>
+				<th>DOB</th>
+				<th>Presenting Issue</th>
+				<th>Last comment</th>
+				<th>Last update</th>
+				<th>Nurse</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					@Model.BedNumber
+				</td>
+				<td>
+					@Model.BedStatus
+				</td>
+				<td>
+					@Model.Patient?.DisplayName
+				</td>
+				<td>
+					@Model.Patient?.DateOfBirth
+				</td>
+				<td>
+					@Model.Patient?.PresentingIssue
+				</td>
+				<td>
+					@Model.LastComment
+				</td>
+				<td>
+					@Model.LastUpdatedUTC
+				</td>
+				<td>
+					@Model.Nurse
+				</td>
+			</tr>
+		</tbody>
+	</table>
+}
