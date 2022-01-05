@@ -1,0 +1,34 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Employee
+@if (ViewData.ContainsKey("Errors") == true && ViewData["Errors"] != null && ViewData["Errors"] is string[] ViewErrors)
+{
+	<div>
+		<ul>
+			@foreach (string error in ViewErrors)
+			{
+				<li>@error</li>
+			}
+		</ul>
+	</div>
+}
+<h1>New Employee</h1>
+<form asp-controller="Employee" asp-action="CreateNewEmployee" method="post">
+	<table>
+		<tr>
+			<td>Full Name *</td>
+			<td><input name="@(nameof(NewEmployeeFormData.FullName))" required="required" /></td>
+		</tr>
+		<tr>
+			<td>Display First Name *</td>
+			<td><input name="@(nameof(NewEmployeeFormData.DisplayFirstName))" required="required" /></td>
+		</tr>
+		<tr>
+			<td>Display Last Name</td>
+			<td><input name="@(nameof(NewEmployeeFormData.DisplayLastName))" /></td>
+		</tr>
+		<tr>
+			<td>Password *</td>
+			<td><input name="@(nameof(NewEmployeeFormData.Password))" required="required" /></td>
+		</tr>
+	</table>
+	<button type="submit">Create Employee</button>
+</form>

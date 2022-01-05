@@ -29,6 +29,20 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return _employeeManager.GetEmployees();
         }
 
+        /// <summary>
+        /// Creates a new employee
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <returns>Null on failure</returns>
+        public PublicEmployee? CreateNewEmployee(string fullName, string displayFirstName, string? displayLastName = null)
+        {
+            var newEmployee = _employeeManager.CreateEmployee(fullName, displayFirstName, displayLastName);
+            return newEmployee;
+        }
+
+
         [HttpPost]
         [Route("New")]
         [SwaggerResponse((int)HttpStatusCode.OK, "The newly created employee", typeof(EmployeeApiResponse), MediaTypeNames.Application.Json)]

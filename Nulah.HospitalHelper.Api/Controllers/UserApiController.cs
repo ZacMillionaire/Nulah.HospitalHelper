@@ -45,6 +45,17 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return _userManager.Logout(employeeId);
         }
 
+        /// <summary>
+        /// Creates a new user with the given password
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="password"></param>
+        /// <returns>false if the employee doesn't exist, or the employee already has a user account</returns>
+        public bool CreateNewUser(int employeeId, string password)
+        {
+            return _userManager.CreateUser(employeeId, password);
+        }
+
 
         [HttpPost]
         [Route("Login")]
