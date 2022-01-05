@@ -67,7 +67,7 @@ else
 						@foreach (PublicPatientComment comment in Model.PatientDetails.Comments)
 						{
 							<tr>
-								<td>@comment.DateTimeUTC.Date.ToString("dd-MMM-YYYY")</td>
+								<td>@comment.DateTimeUTC.Date.ToString("dd-MMM-yyyy")</td>
 								<td>@comment.DateTimeUTC.ToString("HH:mm")</td>
 								<td>@comment.Nurse</td>
 								<td>@comment.Comment</td>
