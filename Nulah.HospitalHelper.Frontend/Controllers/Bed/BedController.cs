@@ -105,13 +105,13 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
             if (User.Identity == null || User.Identity.IsAuthenticated == false)
             {
                 TempData["Error"] = "Unauthenticated action";
-                return RedirectToAction(nameof(AddComment));
+                return RedirectToAction(nameof(AddComment), new { bedNumber = bedNumber });
             }
 
             if (string.IsNullOrWhiteSpace(formData.Comment) == true)
             {
                 TempData["Error"] = "Comment cannot be empty";
-                return RedirectToAction(nameof(AddComment));
+                return RedirectToAction(nameof(AddComment), new { bedNumber = bedNumber });
             }
 
             var employeeId = int.Parse(User.Claims.First(x => x.Type == "EmployeeId").Value);
