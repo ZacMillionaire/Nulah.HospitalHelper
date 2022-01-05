@@ -78,15 +78,15 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.User
 
                 var userLoggedOut = _userApi.LogoutUser(employeeId, loginToken);
 
-                // Shouldn't do this, a logout should always destroy any login artefacts,
-                // but this authentication system is purposefully bad
+                // Always destroy the logged in session here
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
                 if (userLoggedOut == true)
                 {
-                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                     return RedirectToAction(nameof(UserController.Login));
                 }
             }
-            return RedirectToAction("/");
+            return RedirectToAction(nameof(UserController.Login));
         }
     }
 }

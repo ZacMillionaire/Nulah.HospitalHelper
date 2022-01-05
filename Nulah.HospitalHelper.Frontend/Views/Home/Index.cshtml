@@ -5,11 +5,6 @@
 @{
 	ViewData["Title"] = "Index";
 }
-
-<h2>Index</h2>
-
-<p>Hello from our View Template!</p>
-
 <a href="~/Beds/New">Create Bed</a>
 <table>
 	<thead>
@@ -26,10 +21,10 @@
 		</tr>
 	</thead>
 	<tbody>
-		@if (Model == null || Model.Beds == null)
+		@if (Model == null || Model.Beds == null || Model.Beds.Count == 0)
 		{
 			<tr>
-				<th colspan="9">No beds</th>
+				<th colspan="9">No beds <a href="~/Beds/New">Create Bed</a></th>
 			</tr>
 		}
 		else
@@ -77,10 +72,11 @@
 		}
 	</tbody>
 </table>
+<a href="~/Beds/New">Create Bed</a>
 
 
 <table>
-	@if (Model == null || Model.Beds == null)
+	@if (Model == null || Model.Beds == null || Model.Beds.Count == 0)
 	{
 		<tr>
 			<th colspan="2">No beds</th>
