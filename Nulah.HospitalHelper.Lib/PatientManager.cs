@@ -207,5 +207,15 @@ namespace Nulah.HospitalHelper.Lib
 
             return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
         }
+
+        /// <summary>
+        /// Returns the number of patients admitted for the given date
+        /// </summary>
+        /// <param name="date">Will be converted to UTC</param>
+        /// <returns></returns>
+        public int GetAdmittanceCountForDate(DateTime date)
+        {
+            return _patientRepository.GetAdmittanceStats(date.ToUniversalTime().Date);
+        }
     }
 }

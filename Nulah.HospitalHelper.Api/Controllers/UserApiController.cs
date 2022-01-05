@@ -35,6 +35,12 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return null;
         }
 
+        /// <summary>
+        /// Logs a user out
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="loginToken"></param>
+        /// <returns>false if the employee is not logged in, or <paramref name="loginToken"/> is invalid</returns>
         public bool LogoutUser(int employeeId, string loginToken)
         {
             if (_userManager.CheckUserLogin(employeeId, loginToken) == false)

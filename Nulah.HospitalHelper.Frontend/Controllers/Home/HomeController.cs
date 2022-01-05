@@ -10,9 +10,12 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Home
     public class HomeController : Controller
     {
         private readonly BedApiController _bedApi;
-        public HomeController(BedApiController bedApiController)
+        private readonly PatientApiController _patientApi;
+
+        public HomeController(BedApiController bedApiController, PatientApiController patientApiController)
         {
             _bedApi = bedApiController;
+            _patientApi = patientApiController;
         }
 
         [HttpGet]
@@ -21,18 +24,9 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Home
         {
             var model = new HomeViewModel
             {
-                Beds = _bedApi.GetBeds().ToList()
+                Beds = _bedApi.GetBeds().ToList(),
+                PatientsAdmittedToday = _patientApi.GetPatientsAdmittedCount(DateTime.Now)
             };
-
-            var a = model.Beds
-                .Where(x => x.Patient != null)
-                .Select(x => new
-                {
-                    Patient = x.Patient,
-                    AdmittedCommentDate = x.Patient!.Comments
-                    .FirstOrDefault(y => y.Comment == "Admitted")
-                });
-            //          && y.Patient.DateTimeUTC.Date == DateTime.UtcNow.Date);
 
             return View(model);
         }

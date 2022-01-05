@@ -162,6 +162,17 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return false;
         }
 
+        /// <summary>
+        /// Returns the count of patients admitted on the given date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public int GetPatientsAdmittedCount(DateTime date)
+        {
+            return _patientManager.GetAdmittanceCountForDate(date);
+        }
+
+
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "All patients in the system", typeof(PatientListApiResponse), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception is thrown", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]

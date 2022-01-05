@@ -8,11 +8,11 @@
 <body>
 	<div>
 		<ul>
-			<li><a asp-controller="Home" asp-action="Index">View Beds</a></li>
-			<li><a asp-controller="Patient" asp-action="Index">View Patients</a></li>
-			<li><a asp-controller="Employee" asp-action="Index">View Employees</a></li>
 			@if (User.Identity != null && User.Identity.IsAuthenticated)
 			{
+				<li><a asp-controller="Home" asp-action="Index">View Beds</a></li>
+				<li><a asp-controller="Patient" asp-action="Index">View Patients</a></li>
+				<li><a asp-controller="Employee" asp-action="Index">View Employees</a></li>
 				<li><a asp-controller="User" asp-action="Logout">Logout</a></li>
 			}
 			else
