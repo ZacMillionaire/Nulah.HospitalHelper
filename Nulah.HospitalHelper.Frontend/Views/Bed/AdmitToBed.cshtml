@@ -4,13 +4,13 @@
 @model AdmitToBedViewModel;
 @if (Model == null || Model.Bed == null)
 {
-	<h1>No bed found</h1>
+	<h1 class="error-text">No bed found</h1>
 }
 else
 {
 	@if (ViewBag.Error != null)
 	{
-		<div>
+		<div class="error-text">
 			<h1>Error</h1>
 			<h2>@((string)ViewBag.Error)</h2>
 		</div>

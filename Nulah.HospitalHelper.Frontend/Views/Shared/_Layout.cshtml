@@ -4,15 +4,21 @@
 <head>
 	<meta name="viewport" content="width=device-width" />
 	<title>@ViewBag.Title</title>
+	<link type="text/css" rel="stylesheet" href="~/css/main.css" />
 </head>
 <body>
-	<div>
-		<ul>
+	<div id="header-menu">
+		<ul class="menu menu-left">
 			@if (User.Identity != null && User.Identity.IsAuthenticated)
 			{
-				<li><a asp-controller="Home" asp-action="Index">View Beds</a></li>
+				<li><a asp-controller="Home" asp-action="Index">Home</a></li>
 				<li><a asp-controller="Patient" asp-action="Index">View Patients</a></li>
 				<li><a asp-controller="Employee" asp-action="Index">View Employees</a></li>
+			}
+		</ul>
+		<ul class="menu menu-right">
+			@if (User.Identity != null && User.Identity.IsAuthenticated)
+			{
 				<li><a asp-controller="User" asp-action="Logout">Logout</a></li>
 			}
 			else
@@ -21,7 +27,7 @@
 			}
 		</ul>
 	</div>
-	<div>
+	<div id="body-content">
 		@RenderBody()
 	</div>
 </body>

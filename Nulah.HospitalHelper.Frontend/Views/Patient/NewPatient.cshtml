@@ -6,7 +6,7 @@
 
 @if (ViewData.ContainsKey("Errors") == true && ViewData["Errors"] != null && ViewData["Errors"] is string[] ViewErrors)
 {
-	<div>
+	<div class="error-text">
 		<ul>
 			@foreach (string error in ViewErrors)
 			{
