@@ -23,6 +23,8 @@ namespace Nulah.HospitalHelper.Api
             app.UseAuthorization();
             app.MapControllers();
 
+            app.UseStaticFiles();
+
             app.Run();
         }
 
