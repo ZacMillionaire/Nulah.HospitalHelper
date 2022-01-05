@@ -2,6 +2,7 @@
 using Nulah.HospitalHelper.Api.Models;
 using Nulah.HospitalHelper.Api.Models.Patients;
 using Nulah.HospitalHelper.Core.Models;
+using Nulah.HospitalHelper.Core.Models.Data;
 using Nulah.HospitalHelper.Lib;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -172,6 +173,17 @@ namespace Nulah.HospitalHelper.Api.Controllers
             return _patientManager.GetAdmittanceCountForDate(date);
         }
 
+        /// <summary>
+        /// Adds a comment to a patient
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <param name="patientURN"></param>
+        /// <param name="employeeId"></param>
+        /// <returns>null if the comment failed to be created due to the patient or employee not existing</returns>
+        public PatientComment? AddComment(string comment, int patientURN, int employeeId)
+        {
+            return _patientManager.AddCommentToPatient(comment, patientURN, employeeId);
+        }
 
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "All patients in the system", typeof(PatientListApiResponse), MediaTypeNames.Application.Json)]

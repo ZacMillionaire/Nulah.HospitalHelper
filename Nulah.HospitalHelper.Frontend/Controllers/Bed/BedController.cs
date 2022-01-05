@@ -88,12 +88,37 @@ namespace Nulah.HospitalHelper.Frontend.Controllers.Bed
         [Route("{BedNumber}/AddComment")]
         public IActionResult AddComment([FromRoute] int bedNumber)
         {
-            var viewModel = new DischargeFromBedViewModel
+            var viewModel = new AddCommentBedViewModel
             {
                 Bed = _bedApi.GetBed(bedNumber)
             };
 
+            ViewData["Error"] = TempData["Error"];
+
             return View(viewModel);
+        }
+
+        [HttpPost]
+        [Route("{BedNumber}/AddComment")]
+        public IActionResult AddCommentToPatient([FromRoute] int bedNumber, [FromForm] AddCommentToPatientInBedFormData formData)
+        {
+            if (User.Identity == null || User.Identity.IsAuthenticated == false)
+            {
+                TempData["Error"] = "Unauthenticated action";
+                return RedirectToAction(nameof(AddComment));
+            }
+
+            if (string.IsNullOrWhiteSpace(formData.Comment) == true)
+            {
+                TempData["Error"] = "Comment cannot be empty";
+                return RedirectToAction(nameof(AddComment));
+            }
+
+            var employeeId = int.Parse(User.Claims.First(x => x.Type == "EmployeeId").Value);
+
+            var comment = _patientApi.AddComment(formData.Comment, formData.PatientURN, employeeId);
+
+            return RedirectToAction(nameof(BedDetails), new { bedNumber = bedNumber });
         }
 
         [HttpGet]
