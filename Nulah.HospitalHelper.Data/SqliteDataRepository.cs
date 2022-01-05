@@ -149,6 +149,12 @@ namespace Nulah.HospitalHelper.Data
                     FOREIGN KEY({nameof(UserLoginToken.UserId)}) REFERENCES [{nameof(User)}s]({nameof(User.Id)})
                 )";
 
+                var patientAdmittedStatsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientAdmitStat)}s] (
+                    [{nameof(PatientAdmitStat.DateUTC)}] INTEGER UNIQUE NOT NULL,
+                    [{nameof(PatientAdmitStat.AdmittedCount)}] INTEGER NOT NULL
+                )";
+
+
                 var createBedTable = new SqliteCommand(bedTableCommand, db);
                 var createPatientTable = new SqliteCommand(patientTableCommand, db);
                 var createBedPatientTable = new SqliteCommand(bedPatientCommand, db);
@@ -158,6 +164,7 @@ namespace Nulah.HospitalHelper.Data
                 var createPatientHealthDetailsTable = new SqliteCommand(patientHealthDetailsTableCommand, db);
                 var createUserTable = new SqliteCommand(usersTableCommand, db);
                 var createUserLoginTokenTable = new SqliteCommand(userLoginTokenTableCommand, db);
+                var createPatientAdmittedStatsTable = new SqliteCommand(patientAdmittedStatsTableCommand, db);
 
                 createBedTable.ExecuteNonQuery();
                 createPatientTable.ExecuteNonQuery();
@@ -168,6 +175,7 @@ namespace Nulah.HospitalHelper.Data
                 createPatientHealthDetailsTable.ExecuteNonQuery();
                 createUserTable.ExecuteNonQuery();
                 createUserLoginTokenTable.ExecuteNonQuery();
+                createPatientAdmittedStatsTable.ExecuteNonQuery();
 
                 CreateDefaultEmployee(db);
 

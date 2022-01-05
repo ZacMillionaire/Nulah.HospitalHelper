@@ -224,6 +224,12 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             var bed = bedManager.GetBedById(1);
 
             Assert.AreEqual(BedStatus.Free, bed!.BedStatus);
+            Assert.AreEqual(null, bed.Patient);
+
+            // Removing a patient from a bed should set patient details to null
+            var removedPatient = patientManager.GetPatientDetails(83524);
+
+            Assert.IsNull(removedPatient.PresentingIssue);
         }
 
         [TestMethod]

@@ -1,0 +1,100 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Home;
+@using Nulah.HospitalHelper.Core.Models;
+@model HomeViewModel;
+
+@{
+	ViewData["Title"] = "Index";
+}
+<a href="~/Beds/New">Create Bed</a>
+<table>
+	<thead>
+		<tr>
+			<th>Bed</th>
+			<th>Status</th>
+			<th>Patient</th>
+			<th>DOB</th>
+			<th>Presenting Issue</th>
+			<th>Last comment</th>
+			<th>Last update</th>
+			<th>Nurse</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (Model == null || Model.Beds == null || Model.Beds.Count == 0)
+		{
+			<tr>
+				<th colspan="9">No beds <a href="~/Beds/New">Create Bed</a></th>
+			</tr>
+		}
+		else
+		{
+			@foreach (PublicBed bed in Model.Beds)
+			{
+				<tr>
+					<td>
+						<a asp-controller="Bed" asp-action="BedDetails" asp-route-BedNumber="@bed.BedNumber">@bed.BedNumber</a>
+					</td>
+					<td>
+						@bed.BedStatus
+					</td>
+					<td>
+						@bed.Patient?.DisplayName
+					</td>
+					<td>
+						@bed.Patient?.DateOfBirth
+					</td>
+					<td>
+						@bed.Patient?.PresentingIssue
+					</td>
+					<td>
+						@bed.LastComment
+					</td>
+					<td>
+						@bed.LastUpdatedUTC
+					</td>
+					<td>
+						@bed.Nurse
+					</td>
+					<td>
+						@if (bed.BedStatus == BedStatus.Free)
+						{
+							<a asp-controller="Bed" asp-action="AdmitToBed" asp-route-BedNumber="@bed.BedNumber">Admit</a>
+						}
+						else
+						{
+							<a asp-controller="Bed" asp-action="AddComment" asp-route-BedNumber="@bed.BedNumber">Add comment</a>
+							<a asp-controller="Bed" asp-action="DischargeFromBed" asp-route-BedNumber="@bed.BedNumber">Discharge</a>
+						}
+					</td>
+				</tr>
+			}
+		}
+	</tbody>
+</table>
+<a href="~/Beds/New">Create Bed</a>
+
+
+<table>
+	@if (Model == null || Model.Beds == null || Model.Beds.Count == 0)
+	{
+		<tr>
+			<th colspan="2">No beds</th>
+		</tr>
+	}
+	else
+	{
+		<tr>
+			<td>Beds in use</td>
+			<td>@Model.Beds.Where(x => x.BedStatus == BedStatus.InUse).Count()</td>
+		</tr>
+		<tr>
+			<td>Beds free</td>
+			<td>@Model.Beds.Where(x => x.BedStatus == BedStatus.Free).Count()</td>
+		</tr>
+		<tr>
+			<td>Total patients admitted today</td>
+			<td>@Model.PatientsAdmittedToday</td>
+		</tr>
+	}
+</table>

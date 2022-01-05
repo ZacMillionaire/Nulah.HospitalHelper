@@ -1,0 +1,62 @@
+﻿@using Nulah.HospitalHelper.Core.Models
+@using Nulah.HospitalHelper.Frontend.Models.Bed;
+@using Nulah.HospitalHelper.Lib;
+@model AdmitToBedViewModel;
+@if (Model == null || Model.Bed == null)
+{
+	<h1>No bed found</h1>
+}
+else
+{
+	@if (ViewBag.Error != null)
+	{
+		<div>
+			<h1>Error</h1>
+			<h2>@((string)ViewBag.Error)</h2>
+		</div>
+	}
+
+	<h1>Bed Details</h1>
+	@await Html.PartialAsync("_PartialBedDetail",Model.Bed)
+
+
+	<h1>Patient To Admit</h1>
+	@if (Model.Patients == null || Model.Patients.Count == 0)
+	{
+		<h2>No patients available</h2>
+	}
+	else if (Model.Bed.BedStatus == BedStatus.Free)
+	{
+		<form asp-controller="Bed" asp-action="AdmitPatientToBed" method="post">
+			<table>
+				<tr>
+					<td>Patient</td>
+					<td>
+						<select name=@(nameof(AdmitPatientToBedFormData.PatientURN)) asp-items="@(new SelectList(Model.Patients, nameof(PublicPatient.URN), nameof(PublicPatient.DisplayName)))">
+							<option>-- Patients --</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Presenting Issue</td>
+					<td>
+						<textarea name=@(nameof(AdmitPatientToBedFormData.PresentingIssue))></textarea>
+					</td>
+				</tr>
+			</table>
+			<input value="@Model.Bed.BedNumber" hidden name=@(nameof(AdmitPatientToBedFormData.BedNumber)) />
+			<input value="@User.Claims.First(x => x.Type == "EmployeeId").Value" name=@(nameof(AdmitPatientToBedFormData.EmployeeId)) hidden />
+			<button type="submit">Add Patient</button>
+		</form>
+	}
+	else
+	{
+		<h2>Bed is already occupied</h2>
+		<form asp-controller="Bed" asp-action="DischargeFromBed" method="post">
+			<input value="@Model.Bed.BedNumber" hidden name=@(nameof(DischargePatientFromBedFormData.BedNumber)) />
+			<input value="@Model.Bed.Patient!.URN" hidden name=@(nameof(DischargePatientFromBedFormData.PatientURN)) />
+			<input value="@User.Claims.First(x => x.Type == "EmployeeId").Value" name=@(nameof(DischargePatientFromBedFormData.EmployeeId)) hidden />
+			<button type="submit">Discharge Patient</button>
+		</form>
+	}
+}

@@ -1,0 +1,45 @@
+﻿@using Nulah.HospitalHelper.Core.Models
+@using Nulah.HospitalHelper.Frontend.Models.Employee
+@model EmployeeIndexViewModel
+@if (Model == null || Model.Employees == null)
+{
+	<h1>No employees in the system</h1>
+}
+else
+{
+	<h1>Employees</h1>
+	<a asp-controller="Employee" asp-action="New">Create</a>
+	<table>
+		<thead>
+			<tr>
+				<th>Employee Id</th>
+				<th>Full Name</th>
+				<th>Display Name</th>
+				<th>Display First Name</th>
+				<th>Display Last Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			@if (Model.Employees.Count == 0)
+			{
+				<tr>
+					<th colspan="5">No Employees <a asp-controller="Employee" asp-action="New">Create</a></th>
+				</tr>
+			}
+			else
+			{
+				@foreach (PublicEmployee employee in Model.Employees)
+				{
+					<tr>
+						<td>@employee.EmployeeId</td>
+						<td>@employee.FullName</td>
+						<td>@employee.DisplayName</td>
+						<td>@(employee.DisplayFirstName ?? "<No display last name>")</td>
+						<td>@employee.DisplayLastName</td>
+					</tr>
+				}
+			}
+		</tbody>
+	</table>
+	<a asp-controller="Employee" asp-action="New">Create</a>
+}

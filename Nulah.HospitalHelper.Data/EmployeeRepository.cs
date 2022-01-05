@@ -18,6 +18,7 @@ namespace Nulah.HospitalHelper.Data
             _repository = dataRepository;
         }
 
+        /// <inheritdoc/>
         public Employee? CreateEmployee(string fullName, string displayFirstName, string? displayLastName = null)
         {
             using (var conn = _repository.GetConnection())
@@ -57,6 +58,7 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
         public Employee? GetEmployee(int employeeId)
         {
             using (var conn = _repository.GetConnection())
@@ -95,6 +97,43 @@ namespace Nulah.HospitalHelper.Data
             }
 
             return null;
+        }
+
+        /// <inheritdoc/>
+        public List<Employee> GetEmployees()
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var getEmployeeQueryText = $@"SELECT 
+                        [{nameof(Employee.EmployeeId)}],
+                        [{nameof(Employee.Id)}],
+                        [{nameof(Employee.DisplayFirstName)}],
+                        [{nameof(Employee.DisplayLastName)}],
+                        [{nameof(Employee.FullName)}]
+                    FROM
+                        [{nameof(Employee)}s]";
+
+
+                using (var res = _repository.CreateCommand(getEmployeeQueryText, conn))
+                {
+                    using (var reader = res.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            var employees = new List<Employee>();
+                            while (reader.Read())
+                            {
+                                employees.Add(ReaderRowToEmployee(reader));
+                            }
+                            return employees;
+                        }
+                    }
+                }
+            }
+
+            return new();
         }
 
         private Employee ReaderRowToEmployee(DbDataReader reader)

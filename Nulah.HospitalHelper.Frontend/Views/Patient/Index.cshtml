@@ -1,0 +1,54 @@
+﻿@using Nulah.HospitalHelper.Frontend.Models.Patient;
+@using Nulah.HospitalHelper.Core.Models;
+@model PatientListViewModel;
+
+@{
+	ViewData["Title"] = "Index";
+}
+
+<a asp-controller="Patient" asp-action="NewPatient">Create New Patient</a>
+@if (Model == null || Model.Patients == null)
+{
+	<h1>No patients in the system</h1>
+}
+else
+{
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<th>URN</th>
+					<th>Full Name</th>
+					<th>Display Full Name</th>
+					<th>Display First Name</th>
+					<th>Display Last Name</th>
+					<th>Date Of Birth</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (Model.Patients.Count == 0)
+				{
+					<tr>
+						<th colspan="7">No Patients</th>
+					</tr>
+				}
+				else
+				{
+					foreach (PublicPatient patient in Model.Patients)
+					{
+						<tr>
+							<td>@patient.DisplayURN</td>
+							<td>@patient.FullName</td>
+							<td>@patient.DisplayName</td>
+							<td>@patient.DisplayFirstName</td>
+							<td>@patient.DisplayLastName</td>
+							<td>@patient.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+							<td><a asp-controller="Patient" asp-action="ViewPatient" asp-route-patientURN="@patient.URN">Manage</a></td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+}

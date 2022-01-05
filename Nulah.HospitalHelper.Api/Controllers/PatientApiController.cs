@@ -2,6 +2,7 @@
 using Nulah.HospitalHelper.Api.Models;
 using Nulah.HospitalHelper.Api.Models.Patients;
 using Nulah.HospitalHelper.Core.Models;
+using Nulah.HospitalHelper.Core.Models.Data;
 using Nulah.HospitalHelper.Lib;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -10,7 +11,7 @@ using System.Net.Mime;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Patients")]
+    [Route("Api/Patients")]
     [LazyApiAuthorise]
     public class PatientApiController : ControllerBase
     {
@@ -25,6 +26,165 @@ namespace Nulah.HospitalHelper.Api.Controllers
             _bedManager = bedManager;
         }
 
+
+        /// <summary>
+        /// Creates a new patient, returning null on failure
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <param name="dateOfBirthUTC"></param>
+        /// <returns></returns>
+        public PublicPatient? CreateNewPatient(string fullName, string displayFirstName, string? displayLastName, DateTime dateOfBirthUTC)
+        {
+            // Return null if a required value is null.
+            // Other methods that call this may already perform this check, but this is an additional safeguard
+            if (string.IsNullOrWhiteSpace(fullName)
+                || string.IsNullOrWhiteSpace(displayFirstName))
+            {
+                return null;
+            }
+
+            return _patientManager.CreateNewPatient(fullName, displayFirstName, displayLastName, dateOfBirthUTC);
+        }
+
+        /// <summary>
+        /// Returns all patients currently available
+        /// </summary>
+        /// <returns></returns>
+        public List<PublicPatient> GetPatientList()
+        {
+            return _patientManager.GetPatients();
+        }
+
+        /// <summary>
+        /// Returns the full patient details by <paramref name="patientURN"/>, or null if not found
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <returns></returns>
+        public PublicPatientDetails? GetFullPatientDetails(int patientURN)
+        {
+            return _patientManager.GetPatientDetails(patientURN);
+        }
+
+        /// <summary>
+        /// Returns true on patient admitted, or false if the patient does not exist, the bed does not exist, the employee does not exist, or presenting issue was null
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <param name="presentingIssue"></param>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
+        public bool AdmitPatientToBed(int patientURN, int bedNumber, string presentingIssue, int employeeId)
+        {
+
+            if (string.IsNullOrWhiteSpace(presentingIssue) == true)
+            {
+                return false;
+            }
+
+            var bed = _bedManager.GetBedById(bedNumber);
+
+            if (bed == null)
+            {
+                return false;
+            }
+            else if (bed.BedStatus != BedStatus.Free)
+            {
+                return false;
+            }
+
+            var employee = _employeeManager.GetEmployee(employeeId);
+
+            if (employee == null)
+            {
+                return false;
+
+            }
+
+            var patientAddedToBed = _patientManager.AddPatientToBed(patientURN, bedNumber, presentingIssue);
+
+            if (patientAddedToBed == true)
+            {
+                // Create a comment for the patient to indicate they were admitted
+                var admittedComment = _patientManager.AddCommentToPatient("Admitted", patientURN, employeeId);
+
+                if (admittedComment != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Discharges the patient by <paramref name="patientURN"/> from the given bed by <paramref name="bedNumber"/>, and adds a discharged comment by the given <paramref name="employeeId"/>
+        /// </summary>
+        /// <param name="patientURN"></param>
+        /// <param name="bedNumber"></param>
+        /// <param name="employeeId"></param>
+        /// <returns>True on success, false if any requirements don't return a resource, or other error</returns>
+        public bool DischargePatientFromBed(int patientURN, int bedNumber, int employeeId)
+        {
+            var bed = _bedManager.GetBedById(bedNumber);
+
+            if (bed == null)
+            {
+                return false;
+            }
+            else if (bed.BedStatus != BedStatus.InUse)
+            {
+                return false;
+            }
+
+            var employee = _employeeManager.GetEmployee(employeeId);
+
+            if (employee == null)
+            {
+                return false;
+
+            }
+
+            var patientAddedToBed = _patientManager.RemovePatientFromBed(patientURN, bedNumber);
+
+            if (patientAddedToBed == true)
+            {
+                // Create a comment for the patient to indicate they were discharged
+                var dischargedComment = _patientManager.AddCommentToPatient("Discharged", patientURN, employeeId);
+
+                if (dischargedComment != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the count of patients admitted on the given date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public int GetPatientsAdmittedCount(DateTime date)
+        {
+            return _patientManager.GetAdmittanceCountForDate(date);
+        }
+
+        /// <summary>
+        /// Adds a comment to a patient
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <param name="patientURN"></param>
+        /// <param name="employeeId"></param>
+        /// <returns>null if the comment failed to be created due to the patient or employee not existing</returns>
+        public PatientComment? AddComment(string comment, int patientURN, int employeeId)
+        {
+            return _patientManager.AddCommentToPatient(comment, patientURN, employeeId);
+        }
+
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, "All patients in the system", typeof(PatientListApiResponse), MediaTypeNames.Application.Json)]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, "Error response if any exception is thrown", typeof(ErrorApiResponse), MediaTypeNames.Application.Json)]
@@ -34,7 +194,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
             {
                 try
                 {
-                    var patients = _patientManager.GetPatients();
+                    var patients = GetPatientList();
 
                     return ToJsonResult(new PatientListApiResponse
                     {
@@ -153,7 +313,7 @@ namespace Nulah.HospitalHelper.Api.Controllers
                         });
                     }
 
-                    var newPatient = _patientManager.CreateNewPatient(createPatientRequest.fullName, createPatientRequest.displayFirstName, createPatientRequest.displayLastName, createPatientRequest.dateOfBirthUTC);
+                    var newPatient = CreateNewPatient(createPatientRequest.fullName, createPatientRequest.displayFirstName, createPatientRequest.displayLastName, createPatientRequest.dateOfBirthUTC);
 
                     if (newPatient == null)
                     {
@@ -261,6 +421,15 @@ namespace Nulah.HospitalHelper.Api.Controllers
             {
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(admitDischargePatientRequest.PresentingIssue) == true)
+                    {
+                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return ToJsonResult(new ErrorApiResponse
+                        {
+                            Message = "Presenting Issue cannot be empty",
+                        });
+                    }
+
                     var bed = _bedManager.GetBedById(admitDischargePatientRequest.BedNumber);
 
                     if (bed == null)

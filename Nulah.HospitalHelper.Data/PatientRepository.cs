@@ -364,6 +364,36 @@ namespace Nulah.HospitalHelper.Data
             return null;
         }
 
+        /// <inheritdoc/>
+        public PatientHealthDetail? ClearHealthDetails(int patientURN)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"DELETE FROM 
+                        [{nameof(PatientHealthDetail)}s]
+                    WHERE 
+                        [{nameof(PatientHealthDetail.PatientId)}] = $patientURN;";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "patientURN", patientURN }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteNonQuery();
+
+                    if (rowsActioned == 1)
+                    {
+                        return GetPatientHealthDetails(patientURN);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public bool RemoveCommentFromPatient(int commentId, int patientURN)
         {
             throw new NotImplementedException();
@@ -425,6 +455,38 @@ namespace Nulah.HospitalHelper.Data
             // Should probably throw instead if the patient failed to be created
             return null;
         }
+
+        /// <inheritdoc/>
+        public int GetAdmittanceStats(DateTime dateUTC)
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                var query = $@"SELECT 
+                        [{nameof(PatientAdmitStat.AdmittedCount)}]
+                    FROM
+                        [{nameof(PatientAdmitStat)}s]
+                    WHERE 
+                        [{nameof(PatientAdmitStat.DateUTC)}] = $date;";
+
+                var queryParams = new Dictionary<string, object> {
+                    { "date", dateUTC.Date.Ticks }
+                };
+
+                using (var res = _repository.CreateCommand(query, conn, queryParams))
+                {
+                    var rowsActioned = res.ExecuteScalar();
+                    if (rowsActioned != null && rowsActioned != DBNull.Value)
+                    {
+                        return Convert.ToInt32(rowsActioned);
+                    }
+                }
+            }
+
+            return 0;
+        }
+
 
         /// <summary>
         /// Converts the row at <paramref name="reader"/> to a <see cref="Patient"/>

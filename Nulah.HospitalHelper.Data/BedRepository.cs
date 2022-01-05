@@ -153,10 +153,54 @@ namespace Nulah.HospitalHelper.Data
 
                     if (rowsInserted == 1)
                     {
+                        IncreaseAdmittedStat();
                         return SetBedStatus(bedNumber, BedStatus.InUse);
                     }
 
                     return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Increases the count of admitted patients for the time of method call in UTC
+        /// </summary>
+        private void IncreaseAdmittedStat()
+        {
+            using (var conn = _repository.GetConnection())
+            {
+                conn.Open();
+
+                // This query will insert a new row if that date hasn't been seen,
+                // then update the count by 1
+                var bedPatientQuery = $@"INSERT OR IGNORE INTO [{nameof(PatientAdmitStat)}s] (
+                        [{nameof(PatientAdmitStat.DateUTC)}], 
+                        [{nameof(PatientAdmitStat.AdmittedCount)}]
+                    )
+                    VALUES (
+                        $dateUTC,
+                        0
+                    );
+                    UPDATE
+                        [{nameof(PatientAdmitStat)}s]
+                    SET
+                        [{nameof(PatientAdmitStat.AdmittedCount)}] = [{nameof(PatientAdmitStat.AdmittedCount)}] + 1
+                    WHERE
+                        [{nameof(PatientAdmitStat.DateUTC)}] = $dateUTC;";
+
+                var bedPatientQueryParams = new Dictionary<string, object>
+                {
+                    { "dateUTC",DateTime.UtcNow.Date.Ticks }
+                };
+
+                using (var res = _repository.CreateCommand(bedPatientQuery, conn, bedPatientQueryParams))
+                {
+                    var updated = res.ExecuteNonQuery();
+
+                    // Don't worry about the result here, either it updated or it failed and threw an error on query execution.
+                    // If checking is required:
+                    // - The first time a stat for a date is created updated will be 2
+                    // - each subsequent time for the same day will be 1
                 }
             }
         }

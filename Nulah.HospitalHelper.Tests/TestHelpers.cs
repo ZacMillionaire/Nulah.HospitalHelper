@@ -254,6 +254,10 @@ namespace Nulah.HospitalHelper.Tests
                     FOREIGN KEY({nameof(UserLoginToken.UserId)}) REFERENCES [{nameof(User)}s]({nameof(User.Id)})
                 )";
 
+                var patientAdmittedStatsTableCommand = $@"CREATE TABLE IF NOT EXISTS [{nameof(PatientAdmitStat)}s] (
+                    [{nameof(PatientAdmitStat.DateUTC)}] INTEGER UNIQUE NOT NULL,
+                    [{nameof(PatientAdmitStat.AdmittedCount)}] INTEGER NOT NULL
+                )";
 
                 var createBedTable = new SqliteCommand(bedTableCommand, db);
                 var createPatientTable = new SqliteCommand(patientTableCommand, db);
@@ -264,6 +268,7 @@ namespace Nulah.HospitalHelper.Tests
                 var createPatientHealthDetailsTable = new SqliteCommand(patientHealthDetailsTableCommand, db);
                 var createUserTable = new SqliteCommand(usersTableCommand, db);
                 var createUserLoginTokenTable = new SqliteCommand(userLoginTokenTableCommand, db);
+                var createPatientAdmittedStatsTable = new SqliteCommand(patientAdmittedStatsTableCommand, db);
 
                 createBedTable.ExecuteNonQuery();
                 createPatientTable.ExecuteNonQuery();
@@ -274,6 +279,7 @@ namespace Nulah.HospitalHelper.Tests
                 createPatientHealthDetailsTable.ExecuteNonQuery();
                 createUserTable.ExecuteNonQuery();
                 createUserLoginTokenTable.ExecuteNonQuery();
+                createPatientAdmittedStatsTable.ExecuteNonQuery();
 
                 db.Close();
             }

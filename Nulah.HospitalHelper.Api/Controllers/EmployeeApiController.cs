@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nulah.HospitalHelper.Api.Models;
 using Nulah.HospitalHelper.Api.Models.Employees;
+using Nulah.HospitalHelper.Core.Models;
 using Nulah.HospitalHelper.Lib;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -9,7 +10,7 @@ using System.Net.Mime;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Employees")]
+    [Route("Api/Employees")]
     [LazyApiAuthorise]
     public class EmployeeApiController : ControllerBase
     {
@@ -18,6 +19,29 @@ namespace Nulah.HospitalHelper.Api.Controllers
         {
             _employeeManager = employeeManager;
         }
+
+        /// <summary>
+        /// Returns all employees
+        /// </summary>
+        /// <returns>Always returns a non-null list of <see cref="PublicEmployee"/></returns>
+        public List<PublicEmployee> GetAllEmployees()
+        {
+            return _employeeManager.GetEmployees();
+        }
+
+        /// <summary>
+        /// Creates a new employee
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <param name="displayFirstName"></param>
+        /// <param name="displayLastName"></param>
+        /// <returns>Null on failure</returns>
+        public PublicEmployee? CreateNewEmployee(string fullName, string displayFirstName, string? displayLastName = null)
+        {
+            var newEmployee = _employeeManager.CreateEmployee(fullName, displayFirstName, displayLastName);
+            return newEmployee;
+        }
+
 
         [HttpPost]
         [Route("New")]

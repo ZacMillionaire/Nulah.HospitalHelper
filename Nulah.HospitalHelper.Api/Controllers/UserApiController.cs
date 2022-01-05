@@ -7,7 +7,7 @@ using System.Net;
 namespace Nulah.HospitalHelper.Api.Controllers
 {
     [ApiController]
-    [Route("Users")]
+    [Route("Api/Users")]
     public class UserApiController : ControllerBase
     {
         private readonly UserManager _userManager;
@@ -16,6 +16,52 @@ namespace Nulah.HospitalHelper.Api.Controllers
         {
             _userManager = userManager;
         }
+
+        /// <summary>
+        /// Returns a login token for the user, or null on any failed login
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public string? LoginUser(int employeeId, string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) == false)
+            {
+                var logintoken = _userManager.Login(employeeId, password);
+
+                return logintoken;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Logs a user out
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="loginToken"></param>
+        /// <returns>false if the employee is not logged in, or <paramref name="loginToken"/> is invalid</returns>
+        public bool LogoutUser(int employeeId, string loginToken)
+        {
+            if (_userManager.CheckUserLogin(employeeId, loginToken) == false)
+            {
+                return false;
+            }
+
+            return _userManager.Logout(employeeId);
+        }
+
+        /// <summary>
+        /// Creates a new user with the given password
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <param name="password"></param>
+        /// <returns>false if the employee doesn't exist, or the employee already has a user account</returns>
+        public bool CreateNewUser(int employeeId, string password)
+        {
+            return _userManager.CreateUser(employeeId, password);
+        }
+
 
         [HttpPost]
         [Route("Login")]

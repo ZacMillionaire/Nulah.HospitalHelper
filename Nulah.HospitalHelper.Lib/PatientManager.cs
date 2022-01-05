@@ -195,7 +195,27 @@ namespace Nulah.HospitalHelper.Lib
                 return false;
             }
 
+            // Clear the patients presenting issue.
+            // This should return null on success
+            var healthDetails = _patientRepository.ClearHealthDetails(patientURN);
+
+            // Any non-null value indicates a failure
+            if (healthDetails != null)
+            {
+                return false;
+            }
+
             return _bedRepository.RemovePatientFromBed(patientURN, bedNumber);
+        }
+
+        /// <summary>
+        /// Returns the number of patients admitted for the given date
+        /// </summary>
+        /// <param name="date">Will be converted to UTC</param>
+        /// <returns></returns>
+        public int GetAdmittanceCountForDate(DateTime date)
+        {
+            return _patientRepository.GetAdmittanceStats(date.ToUniversalTime().Date);
         }
     }
 }

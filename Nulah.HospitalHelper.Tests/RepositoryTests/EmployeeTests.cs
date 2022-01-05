@@ -74,5 +74,21 @@ namespace Nulah.HospitalHelper.Tests.RepositoryTests
             Assert.AreEqual("Kelly A.", employee.DisplayName);
             Assert.AreEqual("Kelly Anderson", employee.FullName);
         }
+
+        [TestMethod]
+        public void ListAllEmployees_ShouldReturn_ListOfEmployees_CountOf2()
+        {
+            var employeeManager = TestHelpers.GetEmployeeManager();
+            var employees = employeeManager.GetEmployees();
+
+            Assert.AreEqual(2, employees.Count);
+
+            var employeeMary = employees.FirstOrDefault(x => x.FullName == "Mary Presco");
+
+            Assert.IsNotNull(employeeMary);
+            Assert.AreEqual(2, employeeMary.EmployeeId);
+            Assert.AreEqual("Mary P.", employeeMary.DisplayName);
+
+        }
     }
 }
