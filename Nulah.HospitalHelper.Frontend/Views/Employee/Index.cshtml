@@ -8,8 +8,11 @@
 else
 {
 	<h1>Employees</h1>
-	<a asp-controller="Employee" asp-action="New">Create</a>
-	<table>
+	<div class="action-menu">
+		<a asp-controller="Employee" asp-action="New" class="action-button">Create</a>
+	</div>
+
+	<table class="data-table">
 		<thead>
 			<tr>
 				<th>Employee Id</th>
@@ -41,5 +44,7 @@ else
 			}
 		</tbody>
 	</table>
-	<a asp-controller="Employee" asp-action="New">Create</a>
+	<div class="action-menu">
+		<a asp-controller="Employee" asp-action="New" class="action-button">Create</a>
+	</div>
 }

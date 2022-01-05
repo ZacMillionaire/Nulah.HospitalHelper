@@ -6,7 +6,7 @@
 	ViewData["Title"] = "Index";
 }
 <div class="action-menu">
-	<a href="~/Beds/New" class="action-button">Create Bed</a>
+	<a asp-controller="Bed" asp-action="New" class="action-button">Create Bed</a>
 </div>
 <table class="data-table">
 	<thead>
@@ -75,11 +75,11 @@
 	</tbody>
 </table>
 <div class="action-menu">
-	<a href="~/Beds/New" class="action-button">Create Bed</a>
+	<a asp-controller="Bed" asp-action="New" class="action-button">Create Bed</a>
 </div>
 
 
-<table class="data-table">
+<table class="data-table auto-size">
 	@if (Model == null || Model.Beds == null || Model.Beds.Count == 0)
 	{
 		<tr>
