@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Nulah.HospitalHelper.Api.Models;
 using Nulah.HospitalHelper.Api.Models.Employees;
+using Nulah.HospitalHelper.Core.Models;
 using Nulah.HospitalHelper.Lib;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -17,6 +18,15 @@ namespace Nulah.HospitalHelper.Api.Controllers
         public EmployeeApiController(EmployeeManager employeeManager)
         {
             _employeeManager = employeeManager;
+        }
+
+        /// <summary>
+        /// Returns all employees
+        /// </summary>
+        /// <returns>Always returns a non-null list of <see cref="PublicEmployee"/></returns>
+        public List<PublicEmployee> GetAllEmployees()
+        {
+            return _employeeManager.GetEmployees();
         }
 
         [HttpPost]

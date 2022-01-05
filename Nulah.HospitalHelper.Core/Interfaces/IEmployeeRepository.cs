@@ -23,5 +23,10 @@ namespace Nulah.HospitalHelper.Core.Interfaces
         /// <param name="employeeId"></param>
         /// <returns></returns>
         Employee? GetEmployee(int employeeId);
+        /// <summary>
+        /// Returns all employees in the system.
+        /// </summary>
+        /// <returns>Always returns a non-null list</returns>
+        List<Employee> GetEmployees();
     }
 }

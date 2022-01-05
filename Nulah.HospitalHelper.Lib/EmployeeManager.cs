@@ -69,5 +69,25 @@ namespace Nulah.HospitalHelper.Lib
                 FullName = employee.FullName
             };
         }
+
+        /// <summary>
+        /// Returns all employees
+        /// </summary>
+        /// <returns></returns>
+        public List<PublicEmployee> GetEmployees()
+        {
+            var employees = _employeeRepository.GetEmployees();
+
+            return employees.Select(x => new PublicEmployee
+            {
+                Id = x.Id,
+                EmployeeId = x.EmployeeId,
+                DisplayFirstName = x.DisplayFirstName,
+                DisplayLastName = x.DisplayLastName,
+                DisplayName = Formatters.PersonNameToDisplayFormat(x.DisplayFirstName, x.DisplayLastName),
+                FullName = x.FullName
+            })
+            .ToList();
+        }
     }
 }
