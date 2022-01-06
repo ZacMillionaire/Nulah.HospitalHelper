@@ -46,9 +46,12 @@
 ## Running
 
 - From Visual Studio:
-	- The solution is configured to start both the API and front ends respectively once start is clicked.
+	- The solution is configured to start the front end on run
+	- The API can be manually started (or configuration can be changed to start both) and will open a swagger UI.
+		- The API token is `Bearer API-TOKEN-SUPER-SECURE` and has been poorly implemented assuming this is happening in a workspace that could rapidly push to production
+	- The front end will create a default database with a single employee. The login for which is `1/Bas1c_P@ssw0rd` for employee Id/password
+		- Once logged in, any number of additional users can be created by creating an employee
 
 ## Testing
 
-- Default seeded database will have multiple employees with the password: `Bas1c_P@ssw0rd`
-- To start, the first employee has a username of `Pascal N.`
+- All tests for the underlying API can be done via Visual Studio
